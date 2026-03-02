@@ -1,12 +1,9 @@
 """
 Database access layer.
 
-All functions are named after the table they interact with so it's
-clear which dataset is being read or written at the call site.
-
 Connection helper
 ─────────────────
-get_connection()   — returns a sqlite3.Connection to data/eia.db
+get_connection()   — returns a sqlite3.Connection to db/eia.db
 
 yearly_source_disposition
 ─────────────────────────
@@ -19,7 +16,7 @@ get_yearly_source_disposition_year_range()
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "eia.db"
+DB_PATH = Path(__file__).resolve().parent.parent / "db" / "eia.db"
 
 
 # ── Connection ────────────────────────────────────────────────────────────────

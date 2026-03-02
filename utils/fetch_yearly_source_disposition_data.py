@@ -7,8 +7,7 @@ the db module.
 All energy values are in megawatthours (MWh).
 
 Usage (from project root):
-    python -m utils.fetch_eia_data           # skips if data < 30 days old
-    python -m utils.fetch_eia_data --force   # always re-download
+    python -m utils.fetch_yearly_source_disposition_data          # skips if data < 30 days old
 """
 
 import json
@@ -20,7 +19,7 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from db.queries import insert_yearly_source_disposition
+from db.db import insert_yearly_source_disposition
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
@@ -31,6 +30,7 @@ BASE_URL = "https://api.eia.gov/v2"
 ROUTE = "electricity/state-electricity-profiles/source-disposition/data"
 
 DATA_DIR = PROJECT_ROOT / "data"
+DB_DIR = PROJECT_ROOT / "db"
 JSON_FILE = DATA_DIR / "eia_source_disposition.json"
 
 FIELDS = [
@@ -140,34 +140,20 @@ def save_json(records: list[dict]) -> None:
     print(f"Saved {len(records)} records to {JSON_FILE}  ({size_kb:.1f} KB)")
 
 
-# ── Summary ───────────────────────────────────────────────────────────────────
-def print_summary(records: list[dict]) -> None:
-    states = sorted({r.get("stateDescription", "?") for r in records})
-    years = sorted({r.get("period", "?") for r in records})
-    print(f"\n{'─' * 60}")
-    print(f"  Records : {len(records)}")
-    print(f"  States  : {len(states)}")
-    print(f"  Years   : {years[0]} – {years[-1]}")
-    print(f"  Units   : megawatthours (MWh)")
-    print(f"{'─' * 60}\n")
-
-
 # ── Main ──────────────────────────────────────────────────────────────────────
-def main():
-    force = "--force" in sys.argv
+def fetch_eia_source_data():
 
     if not API_KEY:
         print("ERROR: EIA_API_KEY is not set. Add it to your .env file.")
         sys.exit(1)
 
-    if not force and data_is_fresh():
-        if not (DATA_DIR / "eia.db").exists():
+    if data_is_fresh():
+        if not (DB_DIR / "eia.db").exists():
             print("DB missing — rebuilding from cached JSON …")
             with open(JSON_FILE) as f:
                 records = json.load(f)["records"]
             row_count = insert_yearly_source_disposition(records)
             print(f"Inserted {row_count} rows into yearly_source_disposition.")
-            print_summary(records)
         return
 
     print(f"Fetching EIA source & disposition data ({START_YEAR}–{END_YEAR}) …\n")
@@ -182,8 +168,6 @@ def main():
     row_count = insert_yearly_source_disposition(records)
     print(f"Inserted {row_count} rows into yearly_source_disposition.")
 
-    print_summary(records)
-
 
 if __name__ == "__main__":
-    main()
+    fetch_eia_source_data()

@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request
 
-from db.queries import (
+from db.db import (
     get_yearly_source_disposition,
     get_yearly_source_disposition_states,
     get_yearly_source_disposition_year_range,
 )
+
+from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
 
 app = Flask(__name__)
 
@@ -83,6 +85,9 @@ def _build_chart_data(rows) -> dict:
 
 @app.route("/")
 def index():
+    # check if yearly_source_disposition data/DB table exists. Refresh data if it's missing or is more than 30 days old
+    fetch_eia_source_data()
+
     states = get_yearly_source_disposition_states()
     min_year, max_year = get_yearly_source_disposition_year_range()
 
@@ -104,18 +109,6 @@ def index():
     )
 
     chart_data = _build_chart_data(rows) if rows else None
-
-    # ── Console summary ───────────────────────────────────────────────────
-    print(f"\n{'─' * 60}")
-    print(f"  State    : {selected_state or 'none selected'}")
-    print(f"  Years    : {start_year} – {end_year}")
-    print(f"  Rows     : {len(rows)}")
-    if rows:
-        total_gen = sum(r["total_net_generation"] or 0 for r in rows)
-        net_trade = sum(r["net_interstate_trade"] or 0 for r in rows)
-        print(f"  Total net generation  : {total_gen:>20,} MWh")
-        print(f"  Sum net interstate    : {net_trade:>20,} MWh")
-    print(f"{'─' * 60}\n")
 
     return render_template(
         "index.html",
