@@ -139,7 +139,16 @@
         <th>Year</th>
         <th>State</th>
         <th class="text-end">Net Generation</th>
-        <th class="text-end">Net Interstate Trade</th>
+        <th class="text-end">
+          <abbr title="Derived from net_interstate_trade: positive values are shown as imports; negative values are shown as 0 here.">
+            Net Interstate Import
+          </abbr>
+        </th>
+        <th class="text-end">
+          <abbr title="Derived from net_interstate_trade: negative values are shown as exports (absolute value); positive values are shown as 0 here.">
+            Net Interstate Export
+          </abbr>
+        </th>
         <th class="text-end">Intl. Exports</th>
         <th class="text-end">Intl. Imports</th>
       </tr>
@@ -160,7 +169,14 @@
         </td>
         <td class="text-end">
           {% if row['net_interstate_trade'] is not none %}
-            {{ "{:,}".format(row['net_interstate_trade']) }}
+            {{ "{:,}".format(row['net_interstate_trade'] if row['net_interstate_trade'] > 0 else 0) }}
+          {% else %}
+            <span class="null-value">—</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          {% if row['net_interstate_trade'] is not none %}
+            {{ "{:,}".format(-row['net_interstate_trade'] if row['net_interstate_trade'] < 0 else 0) }}
           {% else %}
             <span class="null-value">—</span>
           {% endif %}

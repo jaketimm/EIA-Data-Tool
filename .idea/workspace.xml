@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f3539319-46e2-418f-994f-ae37d2fe1fed" name="Changes" comment="gray out charts with no data e.g. Alaska doesn't trade with other states">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="f3539319-46e2-418f-994f-ae37d2fe1fed" name="Changes" comment="Refactor project structure. Adjust chart tools and styles">
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/eia.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/eia_source_disposition.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/queries.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/fetch_eia_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/fetch_yearly_source_disposition_data.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -160,7 +151,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772479597787</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Refactor project structure. Adjust chart tools and styles">
+      <option name="closed" value="true" />
+      <created>1772484212098</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1772484212098</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -179,6 +178,7 @@
     <MESSAGE value="add eia.db, add logic to save data to 'yearly_source_disposition' table" />
     <MESSAGE value="change index page to show 4 charts, 2 line charts and 2 bar charts. Show all data as positive (states that export data show a negative interstate trade value, which makes the charts hard to read)" />
     <MESSAGE value="gray out charts with no data e.g. Alaska doesn't trade with other states" />
-    <option name="LAST_COMMIT_MESSAGE" value="gray out charts with no data e.g. Alaska doesn't trade with other states" />
+    <MESSAGE value="Refactor project structure. Adjust chart tools and styles" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor project structure. Adjust chart tools and styles" />
   </component>
 </project>

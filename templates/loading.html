@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Loading Data — EIA Data Tool{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body py-5 text-center">
+    <div class="spinner-border text-warning mb-3" role="status" aria-hidden="true"></div>
+    <h2 class="h5 mb-2">Preparing data</h2>
+    <p class="text-muted mb-0">
+      Fetching and loading EIA data. This can take a minute on first launch.
+    </p>
+
+    <div id="startup-error" class="alert alert-danger mt-4 d-none" role="alert"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const errorEl = document.getElementById("startup-error");
+
+    async function pollStartupStatus() {
+      try {
+        const response = await fetch("/startup-status", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const status = await response.json();
+        if (status.ready) {
+          window.location.replace("/");
+          return;
+        }
+
+        if (status.error) {
+          errorEl.textContent = status.error;
+          errorEl.classList.remove("d-none");
+          return;
+        }
+      } catch (err) {
+        // Keep polling on transient network errors.
+      }
+
+      window.setTimeout(pollStartupStatus, 1500);
+    }
+
+    pollStartupStatus();
+  })();
+</script>
+{% endblock %}
