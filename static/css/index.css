@@ -88,6 +88,16 @@
   min-height: 300px;
 }
 
+/* ── No-data state ───────────────────────────────────────────────────────── */
+.chart-card.no-data {
+  opacity: 0.45;
+}
+
+.chart-card.no-data .chart-title,
+.chart-card.no-data .chart-subtitle {
+  color: #adb5bd;
+}
+
 /* ── Results table ───────────────────────────────────────────────────────── */
 .results-table thead th {
   font-size: 0.75rem;

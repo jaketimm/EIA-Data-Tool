@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f3539319-46e2-418f-994f-ae37d2fe1fed" name="Changes" comment="add eia.db, add logic to save data to 'yearly_source_disposition' table">
+    <list default="true" id="f3539319-46e2-418f-994f-ae37d2fe1fed" name="Changes" comment="change index page to show 4 charts, 2 line charts and 2 bar charts. Show all data as positive (states that export data show a negative interstate trade value, which makes the charts hard to read)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
     </list>
@@ -82,12 +81,32 @@
       <option name="project" value="LOCAL" />
       <updated>1772469349251</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="change index page to show 4 charts, 2 line charts and 2 bar charts. Show all data as positive (states that export data show a negative interstate trade value, which makes the charts hard to read)">
+      <option name="closed" value="true" />
+      <created>1772478915578</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1772478915578</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="initial commit. Create util script to download and save annual electricity generation/trade data" />
     <MESSAGE value="add eia.db, add logic to save data to 'yearly_source_disposition' table" />
-    <option name="LAST_COMMIT_MESSAGE" value="add eia.db, add logic to save data to 'yearly_source_disposition' table" />
+    <MESSAGE value="change index page to show 4 charts, 2 line charts and 2 bar charts. Show all data as positive (states that export data show a negative interstate trade value, which makes the charts hard to read)" />
+    <option name="LAST_COMMIT_MESSAGE" value="change index page to show 4 charts, 2 line charts and 2 bar charts. Show all data as positive (states that export data show a negative interstate trade value, which makes the charts hard to read)" />
   </component>
 </project>
