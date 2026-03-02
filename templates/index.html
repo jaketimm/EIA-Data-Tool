@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Source &amp; Disposition — EIA Data Tool{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Page header ─────────────────────────────────────────────────────────── -->
+<div class="page-header row mb-3">
+  <div class="col">
+    <h2 class="mb-0">State Electricity — Source &amp; Disposition</h2>
+    <p class="text-muted mt-1 mb-0">
+      Annual data from the EIA State Electricity Profiles. All values in
+      megawatthours (MWh).
+    </p>
+  </div>
+</div>
+
+<!-- ── Filters ─────────────────────────────────────────────────────────────── -->
+<div class="card filter-card mb-4">
+  <div class="card-body">
+    <form method="GET" action="/" class="row g-3 align-items-end">
+      <div class="col-sm-4 col-md-3">
+        <label for="state" class="form-label">State</label>
+        <select id="state" name="state" class="form-select">
+          <option value="">— Select a state —</option>
+          {% for s in states %}
+            <option
+              value="{{ s['state'] }}"
+              {% if s['state'] == selected_state %}selected{% endif %}
+            >
+              {{ s['state_description'] }} ({{ s['state'] }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-sm-3 col-md-2">
+        <label for="start_year" class="form-label">From year</label>
+        <input
+          type="number"
+          id="start_year"
+          name="start_year"
+          class="form-control"
+          min="{{ min_year }}"
+          max="{{ max_year }}"
+          value="{{ start_year }}"
+        />
+      </div>
+
+      <div class="col-sm-3 col-md-2">
+        <label for="end_year" class="form-label">To year</label>
+        <input
+          type="number"
+          id="end_year"
+          name="end_year"
+          class="form-control"
+          min="{{ min_year }}"
+          max="{{ max_year }}"
+          value="{{ end_year }}"
+        />
+      </div>
+
+      <div class="col-sm-2 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+        <a href="/" class="btn btn-outline-secondary w-100">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── State prompt ─────────────────────────────────────────────────────────── -->
+{% if not selected_state %}
+<div class="state-prompt">
+  <div class="prompt-icon">⚡</div>
+  <p>Select a state above to view charts and data.</p>
+</div>
+
+{% else %}
+
+<!-- ── Line chart ──────────────────────────────────────────────────────────── -->
+<div class="chart-card">
+  <p class="chart-title">Generation &amp; Trade — Trends Over Time</p>
+  <p class="chart-subtitle">
+    Click a series in the legend to show/hide it.
+    Net interstate/international trade: positive = net importer, negative = net exporter.
+  </p>
+  <div id="line-chart"></div>
+</div>
+
+<!-- ── Stacked bar chart ────────────────────────────────────────────────────── -->
+<div class="chart-card">
+  <p class="chart-title">Energy Balance — Supply &amp; Outflow</p>
+  <p class="chart-subtitle">
+    Bars above the axis represent supply sources. Bars below represent outflows.
+  </p>
+  <div id="bar-chart"></div>
+</div>
+
+<!-- ── Results count ────────────────────────────────────────────────────────── -->
+<p class="results-count mb-2">
+  {{ rows|length }} record{{ 's' if rows|length != 1 else '' }} returned
+</p>
+
+<!-- ── Table ────────────────────────────────────────────────────────────────── -->
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-bordered results-table">
+    <thead class="table-dark">
+      <tr>
+        <th>Year</th>
+        <th>State</th>
+        <th class="text-end">Net Generation (MWh)</th>
+        <th class="text-end">Net Interstate Trade (MWh)</th>
+        <th class="text-end">Intl. Exports (MWh)</th>
+        <th class="text-end">Intl. Imports (MWh)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row['period'] }}</td>
+        <td>
+          <abbr title="{{ row['state_description'] }}">{{ row['state'] }}</abbr>
+        </td>
+        <td class="text-end">
+          {% if row['total_net_generation'] is not none %}
+            {{ "{:,}".format(row['total_net_generation']) }}
+          {% else %}
+            <span class="null-value">—</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          {% if row['net_interstate_trade'] is not none %}
+            {{ "{:,}".format(row['net_interstate_trade']) }}
+          {% else %}
+            <span class="null-value">—</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          {% if row['total_international_exports'] is not none %}
+            {{ "{:,}".format(row['total_international_exports']) }}
+          {% else %}
+            <span class="null-value">—</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          {% if row['total_international_imports'] is not none %}
+            {{ "{:,}".format(row['total_international_imports']) }}
+          {% else %}
+            <span class="null-value">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if selected_state and chart_data %}
+<script>
+const chartData = {{ chart_data | tojson }};
+
+// ── Shared layout defaults ────────────────────────────────────────────────
+const sharedLayout = {
+  font:       { family: "system-ui, sans-serif", size: 12 },
+  paper_bgcolor: "rgba(0,0,0,0)",
+  plot_bgcolor:  "rgba(0,0,0,0)",
+  margin:     { t: 20, r: 20, b: 60, l: 80 },
+  xaxis: {
+    title:    "Year",
+    tickmode: "linear",
+    dtick:    1,
+    gridcolor: "#e9ecef",
+    tickangle: -45,
+  },
+  yaxis: {
+    title:     "Megawatthours (MWh)",
+    gridcolor: "#e9ecef",
+    zeroline:  true,
+    zerolinecolor: "#adb5bd",
+    zerolinewidth: 1,
+  },
+  legend: {
+    orientation: "h",
+    yanchor:     "bottom",
+    y:           1.02,
+    xanchor:     "left",
+    x:           0,
+  },
+  hovermode: "x unified",
+};
+
+const sharedConfig = {
+  responsive:    true,
+  displaylogo:   false,
+  modeBarButtonsToRemove: ["select2d", "lasso2d"],
+};
+
+// ── Line chart ────────────────────────────────────────────────────────────
+const lineTraces = [
+  {
+    x:    chartData.years,
+    y:    chartData.total_net_generation,
+    name: "Total Net Generation",
+    type: "scatter",
+    mode: "lines+markers",
+    line: { color: "#2196f3", width: 2.5 },
+    marker: { size: 5 },
+    connectgaps: false,
+  },
+  {
+    x:    chartData.years,
+    y:    chartData.net_interstate_trade,
+    name: "Net Interstate Trade",
+    type: "scatter",
+    mode: "lines+markers",
+    line: { color: "#ff9800", width: 2, dash: "dot" },
+    marker: { size: 5 },
+    connectgaps: false,
+  },
+  {
+    x:    chartData.years,
+    y:    chartData.net_international_trade,
+    name: "Net International Trade",
+    type: "scatter",
+    mode: "lines+markers",
+    line: { color: "#9c27b0", width: 2, dash: "dot" },
+    marker: { size: 5 },
+    connectgaps: false,
+  },
+];
+
+Plotly.newPlot("line-chart", lineTraces, sharedLayout, sharedConfig);
+
+// ── Stacked bar chart ─────────────────────────────────────────────────────
+// Supply (above axis): generation, interstate imports, international imports
+// Outflow (below axis, stored as negatives): interstate exports, international exports
+const barTraces = [
+  {
+    x:    chartData.years,
+    y:    chartData.total_net_generation,
+    name: "Total Net Generation",
+    type: "bar",
+    marker: { color: "#2196f3" },
+  },
+  {
+    x:    chartData.years,
+    y:    chartData.net_interstate_import,
+    name: "Interstate Import",
+    type: "bar",
+    marker: { color: "#4caf50" },
+  },
+  {
+    x:    chartData.years,
+    y:    chartData.total_international_imports,
+    name: "International Import",
+    type: "bar",
+    marker: { color: "#8bc34a" },
+  },
+  {
+    x:    chartData.years,
+    y:    chartData.net_interstate_export_neg,
+    name: "Interstate Export",
+    type: "bar",
+    marker: { color: "#f44336" },
+  },
+  {
+    x:    chartData.years,
+    y:    chartData.total_international_exports_neg,
+    name: "International Export",
+    type: "bar",
+    marker: { color: "#ff7043" },
+  },
+];
+
+const barLayout = {
+  ...sharedLayout,
+  barmode: "relative",  // stacks positives up, negatives down
+};
+
+Plotly.newPlot("bar-chart", barTraces, barLayout, sharedConfig);
+</script>
+{% endif %}
+{% endblock %}

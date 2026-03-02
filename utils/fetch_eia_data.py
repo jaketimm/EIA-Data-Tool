@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
 Fetch EIA State Electricity Profiles — Source & Disposition data
-(V2 API), cache the raw JSON, and load into a SQLite database.
+(V2 API), cache the raw JSON to data/, and load it into SQLite via
+the db module.
 
-All energy values are stored in megawatthours (MWh).
+All energy values are in megawatthours (MWh).
 
 Usage (from project root):
     python -m utils.fetch_eia_data           # skips if data < 30 days old
@@ -12,7 +13,6 @@ Usage (from project root):
 
 import json
 import os
-import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,18 +20,18 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-# ── Paths (relative to project root) ─────────────────────────────────────────
+from db.queries import insert_yearly_source_disposition
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-DATA_DIR = PROJECT_ROOT / "data"
-JSON_FILE = DATA_DIR / "eia_source_disposition.json"
-DB_FILE = DATA_DIR / "eia.db"
-
-# ── API config ────────────────────────────────────────────────────────────────
+# ── Config ────────────────────────────────────────────────────────────────────
 API_KEY = os.getenv("EIA_API_KEY")
 BASE_URL = "https://api.eia.gov/v2"
 ROUTE = "electricity/state-electricity-profiles/source-disposition/data"
+
+DATA_DIR = PROJECT_ROOT / "data"
+JSON_FILE = DATA_DIR / "eia_source_disposition.json"
 
 FIELDS = [
     "net-interstate-trade",
@@ -46,7 +46,7 @@ BATCH_SIZE = 5000
 MAX_AGE_DAYS = 30
 
 
-# ── Freshness check ──────────────────────────────────────────────────────────
+# ── Freshness check ───────────────────────────────────────────────────────────
 def data_is_fresh() -> bool:
     """Return True if the cached JSON exists and is less than MAX_AGE_DAYS old."""
     if not JSON_FILE.exists():
@@ -140,74 +140,6 @@ def save_json(records: list[dict]) -> None:
     print(f"Saved {len(records)} records to {JSON_FILE}  ({size_kb:.1f} KB)")
 
 
-# ── SQLite ────────────────────────────────────────────────────────────────────
-def _to_int(val) -> int | None:
-    """Coerce API string values ("6690506", "0", null) to int or None."""
-    if val is None:
-        return None
-    try:
-        return int(val)
-    except (ValueError, TypeError):
-        return None
-
-
-def load_db(records: list[dict]) -> None:
-    """
-    (Re)create the yearly_source_disposition table and insert all records.
-
-    Schema mirrors the API field names with hyphens → underscores.
-    All energy columns are INTEGER (megawatthours). NULL means the
-    value was not reported by EIA.
-    """
-    DATA_DIR.mkdir(exist_ok=True)
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-
-    cur.execute("DROP TABLE IF EXISTS yearly_source_disposition")
-    cur.execute("""
-        CREATE TABLE yearly_source_disposition (
-            period                      INTEGER NOT NULL,
-            state                       TEXT    NOT NULL,
-            state_description           TEXT    NOT NULL,
-            net_interstate_trade        INTEGER,
-            total_international_exports INTEGER,
-            total_international_imports INTEGER,
-            total_net_generation        INTEGER,
-            PRIMARY KEY (period, state)
-        )
-    """)
-
-    rows = [
-        (
-            int(r["period"]),
-            r["state"],
-            r["stateDescription"],
-            _to_int(r.get("net-interstate-trade")),
-            _to_int(r.get("total-international-exports")),
-            _to_int(r.get("total-international-imports")),
-            _to_int(r.get("total-net-generation")),
-        )
-        for r in records
-    ]
-
-    cur.executemany(
-        """
-        INSERT INTO yearly_source_disposition
-            (period, state, state_description,
-             net_interstate_trade, total_international_exports,
-             total_international_imports, total_net_generation)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        rows,
-    )
-
-    conn.commit()
-    conn.close()
-
-    size_kb = DB_FILE.stat().st_size / 1024
-    print(f"Loaded {len(rows)} records into {DB_FILE}  ({size_kb:.1f} KB)")
-
-
 # ── Summary ───────────────────────────────────────────────────────────────────
 def print_summary(records: list[dict]) -> None:
     states = sorted({r.get("stateDescription", "?") for r in records})
@@ -217,7 +149,7 @@ def print_summary(records: list[dict]) -> None:
     print(f"  States  : {len(states)}")
     print(f"  Years   : {years[0]} – {years[-1]}")
     print(f"  Units   : megawatthours (MWh)")
-    print(f"{'─' * 60}")
+    print(f"{'─' * 60}\n")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -229,18 +161,16 @@ def main():
         sys.exit(1)
 
     if not force and data_is_fresh():
-        # Even though we skip the download, make sure the DB exists.
-        # If the JSON is cached but someone deleted the DB, rebuild it.
-        if not DB_FILE.exists():
+        if not (DATA_DIR / "eia.db").exists():
             print("DB missing — rebuilding from cached JSON …")
             with open(JSON_FILE) as f:
                 records = json.load(f)["records"]
-            load_db(records)
+            row_count = insert_yearly_source_disposition(records)
+            print(f"Inserted {row_count} rows into yearly_source_disposition.")
             print_summary(records)
         return
 
     print(f"Fetching EIA source & disposition data ({START_YEAR}–{END_YEAR}) …\n")
-
     records = fetch_all_records()
 
     if not records:
@@ -248,7 +178,10 @@ def main():
         sys.exit(1)
 
     save_json(records)
-    load_db(records)
+
+    row_count = insert_yearly_source_disposition(records)
+    print(f"Inserted {row_count} rows into yearly_source_disposition.")
+
     print_summary(records)
 
 
