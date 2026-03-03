@@ -126,79 +126,66 @@
   </div>
 </div>
 
-<!-- ── Results count ────────────────────────────────────────────────────────── -->
-<p class="results-count mb-2">
-  {{ rows|length }} record{{ 's' if rows|length != 1 else '' }} returned
-</p>
 
 <!-- ── Table ────────────────────────────────────────────────────────────────── -->
-<div class="table-responsive">
-  <table class="table table-striped table-hover table-bordered results-table">
-    <thead class="table-dark">
-      <tr>
-        <th>Year</th>
-        <th>State</th>
-        <th class="text-end">Net Generation</th>
-        <th class="text-end">
-          <abbr title="Derived from net_interstate_trade: positive values are shown as imports; negative values are shown as 0 here.">
-            Net Interstate Import
-          </abbr>
-        </th>
-        <th class="text-end">
-          <abbr title="Derived from net_interstate_trade: negative values are shown as exports (absolute value); positive values are shown as 0 here.">
-            Net Interstate Export
-          </abbr>
-        </th>
-        <th class="text-end">Intl. Exports</th>
-        <th class="text-end">Intl. Imports</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in rows %}
-      <tr>
-        <td>{{ row['period'] }}</td>
-        <td>
-          <abbr title="{{ row['state_description'] }}">{{ row['state'] }}</abbr>
-        </td>
-        <td class="text-end">
-          {% if row['total_net_generation'] is not none %}
-            {{ "{:,}".format(row['total_net_generation']) }}
-          {% else %}
-            <span class="null-value">—</span>
-          {% endif %}
-        </td>
-        <td class="text-end">
-          {% if row['net_interstate_trade'] is not none %}
-            {{ "{:,}".format(row['net_interstate_trade'] if row['net_interstate_trade'] > 0 else 0) }}
-          {% else %}
-            <span class="null-value">—</span>
-          {% endif %}
-        </td>
-        <td class="text-end">
-          {% if row['net_interstate_trade'] is not none %}
-            {{ "{:,}".format(-row['net_interstate_trade'] if row['net_interstate_trade'] < 0 else 0) }}
-          {% else %}
-            <span class="null-value">—</span>
-          {% endif %}
-        </td>
-        <td class="text-end">
-          {% if row['total_international_exports'] is not none %}
-            {{ "{:,}".format(row['total_international_exports']) }}
-          {% else %}
-            <span class="null-value">—</span>
-          {% endif %}
-        </td>
-        <td class="text-end">
-          {% if row['total_international_imports'] is not none %}
-            {{ "{:,}".format(row['total_international_imports']) }}
-          {% else %}
-            <span class="null-value">—</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="table-container">
+  <div class="table-responsive d-inline-block">
+    <table class="table table-striped table-hover table-bordered results-table">
+      <thead class="table-dark">
+        <tr>
+          <th>Year</th>
+          <th>State</th>
+          <th class="text-end">Net Generation</th>
+          <th class="text-end">
+            <abbr title="Positive values are shown as imports; negative values are shown as exports.">
+              Net Interstate Trade
+            </abbr>
+          </th>
+          <th class="text-end">Intl. Exports</th>
+          <th class="text-end">Intl. Imports</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row['period'] }}</td>
+          <td>
+            <abbr title="{{ row['state_description'] }}">{{ row['state'] }}</abbr>
+          </td>
+          <td class="text-end">
+            {% if row['total_net_generation'] is not none %}
+              {{ "{:,}".format(row['total_net_generation']) }}
+            {% else %}
+              <span class="null-value">—</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if row['net_interstate_trade'] is not none %}
+              {{ "{:,}".format(row['net_interstate_trade']) }}
+            {% else %}
+              <span class="null-value">—</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if row['total_international_exports'] is not none %}
+              {{ "{:,}".format(row['total_international_exports']) }}
+            {% else %}
+              <span class="null-value">—</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if row['total_international_imports'] is not none %}
+              {{ "{:,}".format(row['total_international_imports']) }}
+            {% else %}
+              <span class="null-value">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="text-muted small mt-1">All readings are in MWh</p>
+  </div>
 </div>
 
 {% endif %}

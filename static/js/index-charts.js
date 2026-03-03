@@ -1,10 +1,10 @@
-const cd = window.chartData;
+const eia_data = window.chartData;
 
-if (!cd || typeof Plotly === "undefined") {
+if (!eia_data || typeof Plotly === "undefined") {
   console.warn("Chart data or Plotly is unavailable; skipping chart render.");
 } else {
 
-const yearValues = (cd.years || [])
+const yearValues = (eia_data.years || [])
   .map((year) => Number(year))
   .filter((year) => Number.isFinite(year));
 
@@ -42,7 +42,7 @@ function baseLayout(yTitle) {
       tickangle: -45,
       ...(yearMin !== null && yearMax !== null
         ? {
-            range: [yearMin, yearMax],
+            range: [yearMin - 0.5, yearMax + 0.5],
             autorangeoptions: {
               minallowed: yearMin,
               maxallowed: yearMax,
@@ -133,8 +133,8 @@ Plotly.newPlot(
   "line-generation",
   [
     {
-      x: cd.years,
-      y: cd.total_net_generation,
+      x: eia_data.years,
+      y: eia_data.total_net_generation,
       name: "Net Generation",
       type: "scatter",
       mode: "lines",
@@ -152,8 +152,8 @@ Plotly.newPlot(
   "line-trade",
   [
     {
-      x: cd.years,
-      y: cd.total_imports,
+      x: eia_data.years,
+      y: eia_data.total_imports,
       name: "Total Imports",
       type: "scatter",
       mode: "lines",
@@ -162,8 +162,8 @@ Plotly.newPlot(
       hovertemplate: "%{y:,.0f} MWh<extra></extra>",
     },
     {
-      x: cd.years,
-      y: cd.total_exports,
+      x: eia_data.years,
+      y: eia_data.total_exports,
       name: "Total Exports",
       type: "scatter",
       mode: "lines",
@@ -177,21 +177,21 @@ Plotly.newPlot(
 );
 
 /* ── Bar chart — Interstate ──────────────────────────────────────────────── */
-if (hasData(cd.net_interstate_import, cd.net_interstate_export)) {
+if (hasData(eia_data.net_interstate_import, eia_data.net_interstate_export)) {
   Plotly.newPlot(
     "bar-interstate",
     [
       {
-        x: cd.years,
-        y: cd.net_interstate_import,
+        x: eia_data.years,
+        y: eia_data.net_interstate_import,
         name: "Net Import",
         type: "bar",
         marker: { color: GREEN, opacity: 0.85 },
         hovertemplate: "%{y:,.0f} MWh<extra></extra>",
       },
       {
-        x: cd.years,
-        y: cd.net_interstate_export,
+        x: eia_data.years,
+        y: eia_data.net_interstate_export,
         name: "Net Export",
         type: "bar",
         marker: { color: RED, opacity: 0.85 },
@@ -209,21 +209,21 @@ if (hasData(cd.net_interstate_import, cd.net_interstate_export)) {
 }
 
 /* ── Bar chart — International ───────────────────────────────────────────── */
-if (hasData(cd.intl_imports, cd.intl_exports)) {
+if (hasData(eia_data.intl_imports, eia_data.intl_exports)) {
   Plotly.newPlot(
     "bar-international",
     [
       {
-        x: cd.years,
-        y: cd.intl_imports,
+        x: eia_data.years,
+        y: eia_data.intl_imports,
         name: "Imports",
         type: "bar",
         marker: { color: GREEN_LIGHT, line: { color: GREEN, width: 1 } },
         hovertemplate: "%{y:,.0f} MWh<extra></extra>",
       },
       {
-        x: cd.years,
-        y: cd.intl_exports,
+        x: eia_data.years,
+        y: eia_data.intl_exports,
         name: "Exports",
         type: "bar",
         marker: { color: RED_LIGHT, line: { color: RED, width: 1 } },
