@@ -22,14 +22,14 @@ DB_PATH = Path(__file__).resolve().parent.parent / "db" / "eia.db"
 # ── Connection ────────────────────────────────────────────────────────────────
 def get_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # rows behave like dicts
+    conn.row_factory = sqlite3.Row
     return conn
 
 
 # ── yearly_source_disposition — writes ───────────────────────────────────────
 def insert_yearly_source_disposition(records: list[dict]) -> int:
     """
-    Drop, recreate, and populate the yearly_source_disposition table.
+    Create and update the yearly_source_disposition table.
     Returns the number of rows inserted.
 
     All energy values are in megawatthours (MWh).
@@ -47,9 +47,8 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("DROP TABLE IF EXISTS yearly_source_disposition")
     cur.execute("""
-        CREATE TABLE yearly_source_disposition (
+        CREATE TABLE IF NOT EXISTS yearly_source_disposition (
             period                      INTEGER NOT NULL,
             state                       TEXT    NOT NULL,
             state_description           TEXT    NOT NULL,
@@ -74,9 +73,10 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
         for r in records
     ]
 
+    # Only add rows with a new PRIMARY KEY (period, state)
     cur.executemany(
         """
-        INSERT INTO yearly_source_disposition
+        INSERT OR IGNORE INTO yearly_source_disposition
             (period, state, state_description,
              net_interstate_trade, total_international_exports,
              total_international_imports, total_net_generation)
@@ -86,8 +86,9 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
     )
 
     conn.commit()
+    inserted = conn.total_changes
     conn.close()
-    return len(rows)
+    return inserted
 
 
 # ── yearly_source_disposition — reads ────────────────────────────────────────
@@ -141,7 +142,7 @@ def get_yearly_source_disposition_states() -> list[sqlite3.Row]:
 def get_yearly_source_disposition_year_range() -> tuple[int, int]:
     """
     Return the (min_year, max_year) present in yearly_source_disposition.
-    Used to set sensible bounds on the year-range filter inputs.
+    Used to set the bounds on the year-range filter inputs e.g. 1990-2024
     """
     conn = get_connection()
     row = conn.execute("""
