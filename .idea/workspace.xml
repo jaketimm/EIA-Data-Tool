@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f3539319-46e2-418f-994f-ae37d2fe1fed" name="Changes" comment="adjust table and chart styles. Put interstate readings back into a single net column.">
-      <change afterPath="$PROJECT_DIR$/utils/chart_data_formatters.py" afterDir="false" />
+    <list default="true" id="f3539319-46e2-418f-994f-ae37d2fe1fed" name="Changes" comment="create chart_data_formatters.py, will contain all logic to format data for the Plotly charts">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/eia_source_disposition.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/eia_source_disposition.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +23,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jaketimm&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/jaketimm/EIA-Data-Tool.git&quot;,
+    &quot;accountId&quot;: &quot;e3c351c1-068a-41e0-82da-20f13063a506&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 1
 }</component>
@@ -35,22 +43,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.app.executor": "Run",
-    "Python.fetch_eia_data.executor": "Run",
-    "Python.fetch_yearly_source_disposition_data.executor": "Run",
-    "Python.load_db.executor": "Run",
-    "Python.python -m utils.fetch_yearly_source_disposition_data.executor": "Run",
-    "Python.python utils.fetch_yearly_source_disposition_data.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "settings.editor.selected.configurable": "Errors"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.fetch_eia_data.executor&quot;: &quot;Run&quot;,
+    &quot;Python.fetch_yearly_source_disposition_data.executor&quot;: &quot;Run&quot;,
+    &quot;Python.load_db.executor&quot;: &quot;Run&quot;,
+    &quot;Python.python -m utils.fetch_yearly_source_disposition_data.executor&quot;: &quot;Run&quot;,
+    &quot;Python.python utils.fetch_yearly_source_disposition_data.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\jacob\Python\Python_Projects\EIA-Data-Tool\db" />
@@ -58,7 +66,7 @@
       <recent name="C:\Users\jacob\Python\Python_Projects\EIA-Data-Tool\utils" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.python -m utils.fetch_yearly_source_disposition_data">
     <configuration name="python -m utils.fetch_yearly_source_disposition_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="EIA-Data-Tool" />
       <option name="ENV_FILES" value="" />
@@ -181,7 +189,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772551586681</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="create chart_data_formatters.py, will contain all logic to format data for the Plotly charts">
+      <option name="closed" value="true" />
+      <created>1772553116355</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1772553116355</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -203,6 +219,7 @@
     <MESSAGE value="Refactor project structure. Adjust chart tools and styles" />
     <MESSAGE value="add loading.html template for data refreshes or first time loading. Move chart logic into index-charts.js" />
     <MESSAGE value="adjust table and chart styles. Put interstate readings back into a single net column." />
-    <option name="LAST_COMMIT_MESSAGE" value="adjust table and chart styles. Put interstate readings back into a single net column." />
+    <MESSAGE value="create chart_data_formatters.py, will contain all logic to format data for the Plotly charts" />
+    <option name="LAST_COMMIT_MESSAGE" value="create chart_data_formatters.py, will contain all logic to format data for the Plotly charts" />
   </component>
 </project>

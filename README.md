@@ -20,7 +20,7 @@ This project is independent and not affiliated with the EIA.
 ## Getting an API key
 
 Register at [https://www.eia.gov/opendata/register.php](https://www.eia.gov/opendata/register.php). 
-Your key will be emailed to you immediately.
+Your key will be emailed to you.
 
 ## Setup
 
@@ -45,8 +45,8 @@ python -m utils.fetch_yearly_source_disposition_data
 Start the app:
 ```bash
 python app.py
-Then open http://127.0.0.1:5000 in your browser.
 ```
+Then open http://127.0.0.1:5000 in your browser.
 
 ## Project Structure
 ```
@@ -56,6 +56,7 @@ EIA-Data-Tool/
 ├── app.py
 ├── utils/
 │   ├── __init__.py
+│   ├── chart_data_formatters.py
 │   └── fetch_yearly_source_disposition_data.py
 ├── db/
 │   ├── __init__.py
