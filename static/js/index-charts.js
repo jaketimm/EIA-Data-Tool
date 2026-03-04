@@ -177,13 +177,13 @@ Plotly.newPlot(
 );
 
 /* ── Bar chart — Interstate ──────────────────────────────────────────────── */
-if (hasData(eia_data.net_interstate_import, eia_data.net_interstate_export)) {
+if (hasData(eia_data.interstate_imports, eia_data.interstate_exports)) {
   Plotly.newPlot(
     "bar-interstate",
     [
       {
         x: eia_data.years,
-        y: eia_data.net_interstate_import,
+        y: eia_data.interstate_imports,
         name: "Net Import",
         type: "bar",
         marker: { color: GREEN, opacity: 0.85 },
@@ -191,7 +191,7 @@ if (hasData(eia_data.net_interstate_import, eia_data.net_interstate_export)) {
       },
       {
         x: eia_data.years,
-        y: eia_data.net_interstate_export,
+        y: eia_data.interstate_exports,
         name: "Net Export",
         type: "bar",
         marker: { color: RED, opacity: 0.85 },
@@ -209,13 +209,13 @@ if (hasData(eia_data.net_interstate_import, eia_data.net_interstate_export)) {
 }
 
 /* ── Bar chart — International ───────────────────────────────────────────── */
-if (hasData(eia_data.intl_imports, eia_data.intl_exports)) {
+if (hasData(eia_data.international_imports, eia_data.international_exports)) {
   Plotly.newPlot(
     "bar-international",
     [
       {
         x: eia_data.years,
-        y: eia_data.intl_imports,
+        y: eia_data.international_imports,
         name: "Imports",
         type: "bar",
         marker: { color: GREEN_LIGHT, line: { color: GREEN, width: 1 } },
@@ -223,7 +223,7 @@ if (hasData(eia_data.intl_imports, eia_data.intl_exports)) {
       },
       {
         x: eia_data.years,
-        y: eia_data.intl_exports,
+        y: eia_data.international_exports,
         name: "Exports",
         type: "bar",
         marker: { color: RED_LIGHT, line: { color: RED, width: 1 } },

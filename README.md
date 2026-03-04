@@ -56,6 +56,8 @@ EIA-Data-Tool/
 ├── app.py
 ├── utils/
 │   ├── __init__.py
+│   ├── logger.py
+│   ├── log_reader.py
 │   ├── chart_data_formatters.py
 │   └── fetch_yearly_source_disposition_data.py
 ├── db/

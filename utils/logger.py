@@ -1,9 +1,5 @@
 """
 Root logger config for the EIA tool.
-
-Configure handlers on the `eia_tool` logger. Each module calls
-get_logger(__name__) to get a child; records propagate up to the
-handlers here and carry the full dotted path in %(name)s.
 """
 
 import logging

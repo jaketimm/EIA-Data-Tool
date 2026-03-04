@@ -2,69 +2,99 @@ def build_yearly_source_disposition_chart_data(rows) -> dict:
     """
     Transform DB rows into parallel lists for Plotly.
 
-    Line charts (side by side)
-    ──────────────────────────
+    Line charts
+    ───────────
     Left  — total_net_generation
-    Right — total_imports  (interstate import + international imports)
-            total_exports  (interstate export + international exports)
-            Both always positive. Higher export = state sends more out.
+    Right — total_imports  (interstate + international)
+            total_exports  (interstate + international)
 
-    Bar charts (side by side, all values positive)
-    ───────────────────────────────────────────────
-    Left  — interstate import and interstate export per year
-    Right — international imports and international exports per year
+    Bar charts
+    ──────────
+    Left  — interstate import / export
+    Right — international import / export
     """
-    sorted_rows = sorted(rows, key=lambda r: r["period"])
 
-    years = [r["period"] for r in sorted_rows]
+    rows_by_year = sorted(rows, key=lambda row: row["period"])
+    years = [row["period"] for row in rows_by_year]
 
-    def _val(row, col):
-        v = row[col]
-        return int(v) if v is not None else None
+    def get_int(row, column):
+        value = row[column]
+        return int(value) if value is not None else None
 
-    total_net_generation = [_val(r, "total_net_generation") for r in sorted_rows]
+    # ── Net generation ─────────────────────────────────────────────
+    total_net_generation = [
+        get_int(row, "total_net_generation")
+        for row in rows_by_year
+    ]
 
-    # ── Derive interstate import / export (always >= 0) ───────────────────
-    net_interstate_import = []
-    net_interstate_export = []
-    for r in sorted_rows:
-        nit = _val(r, "net_interstate_trade")
-        if nit is None:
-            net_interstate_import.append(None)
-            net_interstate_export.append(None)
+    # ── Interstate trade (derived from net value) ──────────────────
+    interstate_imports = []
+    interstate_exports = []
+
+    for row in rows_by_year:
+        net_trade = get_int(row, "net_interstate_trade")
+
+        if net_trade is None:
+            interstate_imports.append(None)
+            interstate_exports.append(None)
         else:
-            net_interstate_import.append(max(0, nit))
-            net_interstate_export.append(max(0, -nit))
+            interstate_imports.append(max(0, net_trade))
+            # EIA represents exports as negative interstate trade
+            interstate_exports.append(max(0, -net_trade))
 
-    # ── International (already positive or null) ──────────────────────────
-    intl_imports = [_val(r, "total_international_imports") for r in sorted_rows]
-    intl_exports = [_val(r, "total_international_exports") for r in sorted_rows]
+    # ── International trade (already positive) ─────────────────────
+    international_imports = [
+        get_int(row, "total_international_imports")
+        for row in rows_by_year
+    ]
 
-    # ── Aggregated lines for the right line chart ─────────────────────────
+    international_exports = [
+        get_int(row, "total_international_exports")
+        for row in rows_by_year
+    ]
+
+    # ── Aggregate totals for line charts ───────────────────────────
     total_imports = []
     total_exports = []
-    for i in range(len(sorted_rows)):
-        imp_inter = net_interstate_import[i] or 0
-        imp_intl = intl_imports[i] or 0
-        exp_inter = net_interstate_export[i] or 0
-        exp_intl = intl_exports[i] or 0
 
-        # Preserve None only if ALL source values are None
-        all_imp_none = net_interstate_import[i] is None and intl_imports[i] is None
-        all_exp_none = net_interstate_export[i] is None and intl_exports[i] is None
+    for idx in range(len(rows_by_year)):
+        interstate_import = interstate_imports[idx] or 0
+        international_import = international_imports[idx] or 0
 
-        total_imports.append(None if all_imp_none else imp_inter + imp_intl)
-        total_exports.append(None if all_exp_none else exp_inter + exp_intl)
+        interstate_export = interstate_exports[idx] or 0
+        international_export = international_exports[idx] or 0
+
+        # Distinguish between missing data (None) and a real value of 0.
+        # If both sources are None, keep None so charts show a gap instead of a false zero
+        imports_all_none = (
+            interstate_imports[idx] is None
+            and international_imports[idx] is None
+        )
+
+        exports_all_none = (
+            interstate_exports[idx] is None
+            and international_exports[idx] is None
+        )
+
+        total_imports.append(
+            None if imports_all_none else interstate_import + international_import
+        )
+
+        total_exports.append(
+            None if exports_all_none else interstate_export + international_export
+        )
 
     return {
         "years": years,
+
         # Line charts
         "total_net_generation": total_net_generation,
         "total_imports": total_imports,
         "total_exports": total_exports,
+
         # Bar charts
-        "net_interstate_import": net_interstate_import,
-        "net_interstate_export": net_interstate_export,
-        "intl_imports": intl_imports,
-        "intl_exports": intl_exports,
+        "interstate_imports": interstate_imports,
+        "interstate_exports": interstate_exports,
+        "international_imports": international_imports,
+        "international_exports": international_exports,
     }
