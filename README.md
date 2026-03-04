@@ -66,7 +66,5 @@ EIA-Data-Tool/
 │   ├── css/
 │   └── js/
 ├── templates/
-│   ├── base.html
-│   └── index.html
 └── data/
 ```

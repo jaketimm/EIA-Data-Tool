@@ -9,6 +9,9 @@ from db.db import (
 
 from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
 from utils.chart_data_formatters import build_yearly_source_disposition_chart_data
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 app = Flask(__name__)
 
@@ -23,13 +26,17 @@ def _run_startup_fetch() -> None:
     try:
         fetch_eia_source_data()
     except SystemExit as exc:
+        msg = f"Startup fetch exited early (code: {exc.code}). Check EIA_API_KEY and logs."
+        logger.error(msg)
         with _startup_lock:
             _startup_status = "error"
-            _startup_error = f"Startup fetch exited early (code: {exc.code}). Check EIA_API_KEY and logs."
+            _startup_error = msg
     except Exception as exc:  # noqa: BLE001
+        msg = f"Startup fetch failed: {exc}"
+        logger.error(msg)
         with _startup_lock:
             _startup_status = "error"
-            _startup_error = f"Startup fetch failed: {exc}"
+            _startup_error = msg
     else:
         with _startup_lock:
             _startup_status = "ready"

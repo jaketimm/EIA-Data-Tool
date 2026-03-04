@@ -20,6 +20,9 @@ import requests
 from dotenv import load_dotenv
 
 from db.db import insert_yearly_source_disposition
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
@@ -58,15 +61,19 @@ def data_is_fresh() -> bool:
         fetched_at = datetime.fromisoformat(meta["fetched_at"])
         age = datetime.now(timezone.utc) - fetched_at
         if age.days < MAX_AGE_DAYS:
-            print(
+            logger.info(
                 f"Cached data is {age.days} day(s) old "
                 f"(fetched {fetched_at.strftime('%Y-%m-%d %H:%M UTC')}). "
                 f"Threshold is {MAX_AGE_DAYS} days — skipping download."
             )
             return True
-        print(f"Cached data is {age.days} day(s) old — refreshing.")
+        logger.info(f"Cached data is {age.days} day(s) old — refreshing.")
+    except FileNotFoundError as exc:
+        logger.error(f"Cached JSON file disappeared during freshness check: {exc}")
     except (json.JSONDecodeError, KeyError, ValueError) as exc:
-        print(f"Could not read cache timestamp ({exc}) — will re-download.")
+        logger.error(f"Could not read cache timestamp ({exc}) — will re-download.")
+    except Exception as exc:  # noqa: BLE001
+        logger.error(f"Unexpected error reading cache timestamp ({exc}) — will re-download.")
 
     return False
 
@@ -97,23 +104,43 @@ def fetch_all_records() -> list[dict]:
 
     while True:
         params = build_params(offset)
-        print(f"  → requesting offset={offset} …")
+        logger.info(f"Requesting offset={offset} …")
 
-        resp = requests.get(url, params=params, timeout=60)
-        resp.raise_for_status()
-        body = resp.json()
+        # Network I/O is the most fragile step in the pipeline — log the
+        # specific failure mode before letting it propagate so the log
+        # file shows exactly which page broke.
+        try:
+            resp = requests.get(url, params=params, timeout=60)
+            resp.raise_for_status()
+            body = resp.json()
+        except requests.exceptions.Timeout as exc:
+            logger.error(f"EIA API request timed out at offset={offset}: {exc}")
+            raise
+        except requests.exceptions.HTTPError as exc:
+            logger.error(f"EIA API returned HTTP error at offset={offset}: {exc}")
+            raise
+        except requests.exceptions.ConnectionError as exc:
+            logger.error(f"EIA API connection error at offset={offset}: {exc}")
+            raise
+        except Exception as exc:  # noqa: BLE001
+            logger.error(f"Unexpected error calling EIA API at offset={offset}: {exc}")
+            raise
 
         api_resp = body.get("response", {})
         if not api_resp:
-            print("Unexpected response shape — dumping body:")
-            print(json.dumps(body, indent=2)[:2000])
+            logger.error(
+                "Unexpected EIA response shape — body preview: "
+                f"{json.dumps(body, indent=2)[:2000]}"
+            )
             sys.exit(1)
 
         records = api_resp.get("data", [])
         total = int(api_resp.get("total", 0))
         all_records.extend(records)
 
-        print(f"    fetched {len(records)} rows  (running total: {len(all_records)} / {total})")
+        logger.info(
+            f"Fetched {len(records)} rows (running total: {len(all_records)} / {total})"
+        )
 
         if not records or len(all_records) >= total:
             break
@@ -125,48 +152,63 @@ def fetch_all_records() -> list[dict]:
 
 def save_json(records: list[dict]) -> None:
     """Write records + metadata to the JSON cache file."""
-    DATA_DIR.mkdir(exist_ok=True)
-    payload = {
-        "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "record_count": len(records),
-        "fields": FIELDS,
-        "units": "megawatthours",
-        "records": records,
-    }
-    with open(JSON_FILE, "w") as f:
-        json.dump(payload, f, indent=2)
+    try:
+        DATA_DIR.mkdir(exist_ok=True)
+        payload = {
+            "fetched_at": datetime.now(timezone.utc).isoformat(),
+            "record_count": len(records),
+            "fields": FIELDS,
+            "units": "megawatthours",
+            "records": records,
+        }
+        with open(JSON_FILE, "w") as f:
+            json.dump(payload, f, indent=2)
 
-    size_kb = JSON_FILE.stat().st_size / 1024
-    print(f"Saved {len(records)} records to {JSON_FILE}  ({size_kb:.1f} KB)")
+        size_kb = JSON_FILE.stat().st_size / 1024
+        logger.info(f"Saved {len(records)} records to {JSON_FILE} ({size_kb:.1f} KB)")
+
+    except FileNotFoundError as exc:
+        logger.error(f"Could not save JSON cache — path not found: {exc}")
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.error(f"Unexpected error saving JSON cache: {exc}")
+        raise
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def fetch_eia_source_data():
 
     if not API_KEY:
-        print("ERROR: EIA_API_KEY is not set. Add it to your .env file.")
+        logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         sys.exit(1)
 
     if data_is_fresh():
         if not (DB_DIR / "eia.db").exists():
-            print("DB missing — rebuilding from cached JSON …")
-            with open(JSON_FILE) as f:
-                records = json.load(f)["records"]
+            logger.warning("Data is fresh but DB is missing — rebuilding from cached JSON.")
+            try:
+                with open(JSON_FILE) as f:
+                    records = json.load(f)["records"]
+            except FileNotFoundError as exc:
+                logger.error(f"Cached JSON file not found when rebuilding DB: {exc}")
+                raise
+            except Exception as exc:  # noqa: BLE001
+                logger.error(f"Unexpected error loading cached JSON when rebuilding DB: {exc}")
+                raise
             row_count = insert_yearly_source_disposition(records)
-            print(f"Inserted {row_count} rows into yearly_source_disposition.")
+            logger.info(f"Inserted {row_count} rows into yearly_source_disposition.")
         return
 
-    print(f"Fetching EIA source & disposition data ({START_YEAR}–{END_YEAR}) …\n")
+    logger.info(f"Fetching EIA source & disposition data ({START_YEAR}–{END_YEAR}) …")
     records = fetch_all_records()
 
     if not records:
-        print("\nNo records returned — double-check your API key and date range.")
+        logger.error("No records returned — double-check your API key and date range.")
         sys.exit(1)
 
     save_json(records)
 
     row_count = insert_yearly_source_disposition(records)
-    print(f"Inserted {row_count} rows into yearly_source_disposition.")
+    logger.info(f"Inserted {row_count} rows into yearly_source_disposition.")
 
 
 if __name__ == "__main__":
