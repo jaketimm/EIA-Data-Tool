@@ -6,11 +6,10 @@ from db.db import (
     get_yearly_source_disposition_states,
     get_yearly_source_disposition_year_range,
 )
-
 from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
 from utils.chart_data_formatters import build_yearly_source_disposition_chart_data
 from utils.logger import get_logger
-
+from utils.log_reader import read_log_records
 logger = get_logger(__name__)
 
 app = Flask(__name__)
@@ -25,19 +24,13 @@ def _run_startup_fetch() -> None:
 
     try:
         fetch_eia_source_data()
-    except SystemExit as exc:
-        msg = f"Startup fetch exited early (code: {exc.code}). Check EIA_API_KEY and logs."
-        logger.error(msg)
+    except Exception as exc:
+        logger.error("Startup fetch failed: %s", exc)
         with _startup_lock:
             _startup_status = "error"
-            _startup_error = msg
-    except Exception as exc:  # noqa: BLE001
-        msg = f"Startup fetch failed: {exc}"
-        logger.error(msg)
-        with _startup_lock:
-            _startup_status = "error"
-            _startup_error = msg
+            _startup_error = f"Startup fetch failed: {exc}"
     else:
+        logger.info("Startup fetch completed successfully.")
         with _startup_lock:
             _startup_status = "ready"
             _startup_error = None
@@ -51,6 +44,7 @@ def _ensure_startup_fetch_started() -> None:
             return
         _startup_status = "running"
 
+    logger.info("Starting background EIA data fetch.")
     worker = threading.Thread(target=_run_startup_fetch, daemon=True, name="eia-startup-fetch")
     worker.start()
 
@@ -83,6 +77,11 @@ def index():
         start_year = int(request.args.get("start_year", min_year))
         end_year = int(request.args.get("end_year", max_year))
     except ValueError:
+        logger.info(
+            "Invalid year range params — falling back to full range (%s–%s).",
+            min_year,
+            max_year,
+        )
         start_year, end_year = min_year, max_year
 
     rows = (
@@ -115,6 +114,28 @@ def startup_status():
     _ensure_startup_fetch_started()
     status, error = _get_startup_state()
     return {"status": status, "ready": status == "ready", "error": error}
+
+
+@app.route("/logs")
+def logs():
+    level = request.args.get("level") or None
+    search = request.args.get("q") or None
+
+    try:
+        limit = int(request.args.get("limit", 500))
+    except ValueError:
+        limit = 500
+    limit = max(10, min(limit, 5000))
+
+    records = read_log_records(limit=limit, level=level, search=search)
+
+    return render_template(
+        "logs.html",
+        records=records,
+        level=level,
+        search=search,
+        limit=limit,
+    )
 
 
 if __name__ == "__main__":

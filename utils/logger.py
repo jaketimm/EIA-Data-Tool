@@ -1,41 +1,37 @@
 """
-Shared logger configuration for the EIA tool.
+Root logger config for the EIA tool.
 
-All modules obtain a logger via get_logger(__name__). Output is written
-to logs/eia_tool.log and echoed to the console. Handlers are attached to
-a single parent logger so configuration only runs once regardless of
-import order.
+Configure handlers on the `eia_tool` logger. Each module calls
+get_logger(__name__) to get a child; records propagate up to the
+handlers here and carry the full dotted path in %(name)s.
 """
 
 import logging
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LOG_DIR = PROJECT_ROOT / "logs"
+LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
+LOG_DIR.mkdir(exist_ok=True)
 LOG_FILE = LOG_DIR / "eia_tool.log"
 
+_fmt = logging.Formatter(
+    fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
-def get_logger(name: str) -> logging.Logger:
-    """Return a child logger under the 'eia_tool' namespace."""
-    root = logging.getLogger("eia_tool")
+_root = logging.getLogger("eia_tool")
+_root.setLevel(logging.DEBUG)
+_root.propagate = False  # don't leak into the true root logger
 
-    # Configure once — guard against duplicate handlers on re-import.
-    if not root.handlers:
-        LOG_DIR.mkdir(exist_ok=True)
+if not _root.handlers:
+    fh = logging.FileHandler(LOG_FILE, encoding="utf-8")
+    fh.setFormatter(_fmt)
+    _root.addHandler(fh)
 
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+    sh = logging.StreamHandler()
+    sh.setFormatter(_fmt)
+    _root.addHandler(sh)
 
-        file_handler = logging.FileHandler(LOG_FILE)
-        file_handler.setFormatter(formatter)
-        root.addHandler(file_handler)
 
-        # Remove this handler if you want file-only logging.
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        root.addHandler(console_handler)
-
-        root.setLevel(logging.INFO)
-
-    return logging.getLogger(f"eia_tool.{name}")
+def get_logger(module_name: str) -> logging.Logger:
+    """Return a child logger under eia_tool. Pass __name__."""
+    return logging.getLogger(f"eia_tool.{module_name}")

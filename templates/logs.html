@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Logs — EIA Data Tool{% endblock %}
+
+{% block extra_head %}
+<style>
+  .log-ts     { white-space: nowrap; }
+  .log-module { white-space: nowrap; }
+  .log-msg    { white-space: pre-wrap; word-break: break-word; }
+  .log-table th { font-size: 0.7rem; text-transform: uppercase;
+                  letter-spacing: 0.05em; color: #6c757d; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Filters ───────────────────────────────────────────────────────── -->
+<div class="card mb-3">
+  <div class="card-header">Logs</div>
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+
+      <div class="col-auto">
+        <label class="section-title d-block">Level</label>
+        <select name="level" class="form-select form-select-sm">
+          <option value="">All</option>
+          {% for lvl in ["ERROR", "WARNING", "INFO", "DEBUG"] %}
+            <option value="{{ lvl }}" {% if level == lvl %}selected{% endif %}>
+              {{ lvl.title() }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col">
+        <label class="section-title d-block">Search</label>
+        <input type="text" name="q" class="form-control form-control-sm"
+               value="{{ search or '' }}" placeholder="module or message…">
+      </div>
+
+      <div class="col-auto">
+        <label class="section-title d-block">Last</label>
+        <input type="number" name="limit" class="form-control form-control-sm"
+               value="{{ limit }}" min="10" max="5000" step="10"
+               style="width: 6rem;">
+      </div>
+
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <a href="{{ url_for('logs') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ── Records ───────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-header">
+    {{ records|length }} record{{ '' if records|length == 1 else 's' }}
+  </div>
+  <div class="card-body p-0">
+    {% if records %}
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0 log-table">
+          <thead>
+            <tr>
+              <th class="ps-3">Time</th>
+              <th>Level</th>
+              <th>Module</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% set badge = {
+              "CRITICAL": "bg-danger",
+              "ERROR":    "bg-danger",
+              "WARNING":  "bg-warning text-dark",
+              "INFO":     "bg-secondary",
+              "DEBUG":    "bg-light text-dark border",
+            } %}
+            {% for r in records %}
+              <tr>
+                <td class="log-ts text-muted small ps-3">{{ r.ts }}</td>
+                <td>
+                  <span class="badge {{ badge.get(r.level, 'bg-secondary') }}">
+                    {{ r.level }}
+                  </span>
+                </td>
+                <td class="log-module small">{{ r.name[9:] }}</td>
+                <td class="log-msg font-monospace small pe-3">{{ r.msg }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted text-center py-5 mb-0">
+        No log records match the current filters.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
