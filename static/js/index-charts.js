@@ -13,8 +13,8 @@ const yearMax = yearValues.length ? Math.max(...yearValues) : null;
 
 /* ── Colour palette ──────────────────────────────────────────────────────── */
 const BLUE = "#5E81AC";
-const TEAL = "#1f4970";
-const RED = "#b36d52";
+const DARK_BLUE = "#1f4970";
+const GREEN = "#7c9e6e";
 
 
 /** Shared layout — opaque tooltips, clean grid. */
@@ -115,7 +115,7 @@ Plotly.newPlot(
       name: "Total Imports",
       type: "scatter",
       mode: "lines",
-      line: { color: TEAL, width: 2.5 },
+      line: { color: DARK_BLUE, width: 2.5 },
       connectgaps: false,
       hovertemplate: "%{y:,.0f} MWh<extra></extra>",
     },
@@ -125,7 +125,7 @@ Plotly.newPlot(
       name: "Total Exports",
       type: "scatter",
       mode: "lines",
-      line: { color: RED, width: 2.5 },
+      line: { color: GREEN, width: 2.5 },
       connectgaps: false,
       hovertemplate: "%{y:,.0f} MWh<extra></extra>",
     },

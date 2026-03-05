@@ -71,3 +71,6 @@
 2026-03-05 12:27:05 - eia_tool.__main__ - INFO - Starting background EIA data fetch.
 2026-03-05 12:27:05 - eia_tool.utils.fetch_yearly_source_disposition_data - INFO - Cached data is 0 day(s) old (fetched 2026-03-04 20:35 UTC). Threshold is 30 days — skipping download.
 2026-03-05 12:27:05 - eia_tool.__main__ - INFO - Startup fetch completed successfully.
+2026-03-05 15:57:59 - eia_tool.__main__ - INFO - Starting background EIA data fetch.
+2026-03-05 15:57:59 - eia_tool.utils.fetch_yearly_source_disposition_data - INFO - Cached data is 1 day(s) old (fetched 2026-03-04 20:35 UTC). Threshold is 30 days — skipping download.
+2026-03-05 15:57:59 - eia_tool.__main__ - INFO - Startup fetch completed successfully.

@@ -28,8 +28,8 @@
 
 .filter-card .form-select:focus,
 .filter-card .form-control:focus {
-  border-color: #eee8a9;
-  box-shadow: 0 0 0 0.2rem rgba(176, 141, 87, 0.25);
+  border-color: #89b4d4;
+  box-shadow: 0 0 0 0.2rem rgba(137, 180, 212, 0.35);
 }
 
 .btn-primary:active {

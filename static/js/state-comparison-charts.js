@@ -6,8 +6,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
   console.warn("Year selector or Plotly is unavailable; skipping chart render.");
 } else {
   const BLUE = "#5E81AC";
-  const TEAL = "#1f4970";
-  const RED = "#b36d52";
+  const DARK_BLUE = "#1f4970";
+  const GREEN = "#7c9e6e";
 
   const plotCfg = {
     responsive: true,
@@ -159,7 +159,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
           type: "bar",
           orientation: "h",
           name: "Total Imports (Interstate + Intl)",
-          marker: { color: TEAL },
+          marker: { color: DARK_BLUE },
           hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
         },
       ],
@@ -196,7 +196,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
           type: "bar",
           orientation: "h",
           name: "Total Exports (Interstate + Intl)",
-          marker: { color: RED },
+          marker: { color: GREEN },
           hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
         },
       ],
