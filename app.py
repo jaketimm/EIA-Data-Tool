@@ -122,10 +122,10 @@ def logs():
     search = request.args.get("q") or None
 
     try:
-        limit = int(request.args.get("limit", 500))
+        limit = int(request.args.get("limit", 25))
     except ValueError:
-        limit = 500
-    limit = max(10, min(limit, 5000))
+        limit = 25
+    limit = max(10, min(limit, 1000))
 
     records = read_log_records(limit=limit, level=level, search=search)
 

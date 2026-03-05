@@ -92,9 +92,4 @@ def build_yearly_source_disposition_chart_data(rows) -> dict:
         "total_imports": total_imports,
         "total_exports": total_exports,
 
-        # Bar charts
-        "interstate_imports": interstate_imports,
-        "interstate_exports": interstate_exports,
-        "international_imports": international_imports,
-        "international_exports": international_exports,
     }

@@ -14,18 +14,8 @@ const yearMax = yearValues.length ? Math.max(...yearValues) : null;
 /* ── Colour palette ──────────────────────────────────────────────────────── */
 const BLUE = "#2563eb";
 const GREEN = "#16a34a";
-const GREEN_LIGHT = "#86efac";
 const RED = "#dc2626";
-const RED_LIGHT = "#fca5a5";
 
-/* ── Helpers ─────────────────────────────────────────────────────────────── */
-/**
- * Return true if every value in every array is null, 0, or undefined.
- * Pass as many arrays as you like: hasData(arr1, arr2, ...)
- */
-function hasData(...arrays) {
-  return arrays.some((arr) => arr.some((v) => v !== null && v !== undefined && v !== 0));
-}
 
 /** Shared layout — opaque tooltips, clean grid. */
 function baseLayout(yTitle) {
@@ -76,38 +66,6 @@ function baseLayout(yTitle) {
     },
     hovermode: "x unified",
   };
-}
-
-/**
- * Render a grayed-out empty chart with a centered "No data" message.
- * Also adds the .no-data class to the parent card.
- */
-function renderNoData(divId, cardId) {
-  const card = document.getElementById(cardId);
-  if (card) card.classList.add("no-data");
-
-  const layout = {
-    ...baseLayout("MWh"),
-    xaxis: { visible: false },
-    yaxis: { visible: false },
-    annotations: [
-      {
-        text: "No data available",
-        xref: "paper",
-        yref: "paper",
-        x: 0.5,
-        y: 0.5,
-        showarrow: false,
-        font: { size: 16, color: "#adb5bd" },
-      },
-    ],
-  };
-
-  Plotly.newPlot(divId, [], layout, {
-    responsive: true,
-    displaylogo: false,
-    staticPlot: true,
-  });
 }
 
 const plotCfg = {
@@ -175,68 +133,4 @@ Plotly.newPlot(
   baseLayout("MWh"),
   plotCfg
 );
-
-/* ── Bar chart — Interstate ──────────────────────────────────────────────── */
-if (hasData(eia_data.interstate_imports, eia_data.interstate_exports)) {
-  Plotly.newPlot(
-    "bar-interstate",
-    [
-      {
-        x: eia_data.years,
-        y: eia_data.interstate_imports,
-        name: "Net Import",
-        type: "bar",
-        marker: { color: GREEN, opacity: 0.85 },
-        hovertemplate: "%{y:,.0f} MWh<extra></extra>",
-      },
-      {
-        x: eia_data.years,
-        y: eia_data.interstate_exports,
-        name: "Net Export",
-        type: "bar",
-        marker: { color: RED, opacity: 0.85 },
-        hovertemplate: "%{y:,.0f} MWh<extra></extra>",
-      },
-    ],
-    {
-      ...baseLayout("MWh"),
-      barmode: "group",
-    },
-    plotCfg
-  );
-} else {
-  renderNoData("bar-interstate", "card-bar-interstate");
-}
-
-/* ── Bar chart — International ───────────────────────────────────────────── */
-if (hasData(eia_data.international_imports, eia_data.international_exports)) {
-  Plotly.newPlot(
-    "bar-international",
-    [
-      {
-        x: eia_data.years,
-        y: eia_data.international_imports,
-        name: "Imports",
-        type: "bar",
-        marker: { color: GREEN_LIGHT, line: { color: GREEN, width: 1 } },
-        hovertemplate: "%{y:,.0f} MWh<extra></extra>",
-      },
-      {
-        x: eia_data.years,
-        y: eia_data.international_exports,
-        name: "Exports",
-        type: "bar",
-        marker: { color: RED_LIGHT, line: { color: RED, width: 1 } },
-        hovertemplate: "%{y:,.0f} MWh<extra></extra>",
-      },
-    ],
-    {
-      ...baseLayout("MWh"),
-      barmode: "group",
-    },
-    plotCfg
-  );
-} else {
-  renderNoData("bar-international", "card-bar-international");
-}
 }
