@@ -13,8 +13,8 @@ const yearMax = yearValues.length ? Math.max(...yearValues) : null;
 
 /* ── Colour palette ──────────────────────────────────────────────────────── */
 const BLUE = "#5E81AC";
-const TEAL = "#3F6F85";
-const RED = "#D08770";
+const TEAL = "#1f4970";
+const RED = "#b36d52";
 
 
 /** Shared layout — opaque tooltips, clean grid. */

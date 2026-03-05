@@ -2,9 +2,6 @@
   font-weight: 700;
 }
 
-.filter-card {
-  border-left: 4px solid #b08d57;
-}
 
 .chart-row {
   margin-bottom: 0.5rem;
@@ -33,6 +30,12 @@
 .chart-card .chart-container {
   min-height: 0;
 }
+
+.form-select:focus {
+  border-color: #eee8a9;
+  box-shadow: 0 0 0 0.2rem rgba(176, 141, 87, 0.25);
+}
+
 
 @media (max-width: 991.98px) {
   .chart-card .chart-container {

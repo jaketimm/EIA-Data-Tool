@@ -28,8 +28,14 @@
 
 .filter-card .form-select:focus,
 .filter-card .form-control:focus {
-  border-color: #b08d57;
+  border-color: #eee8a9;
   box-shadow: 0 0 0 0.2rem rgba(176, 141, 87, 0.25);
+}
+
+.btn-primary:active {
+  background-color: #c4bf8c !important;
+  border-color: #c4bf8c !important;
+  color: #212529;
 }
 
 /* ── State prompt ────────────────────────────────────────────────────────── */
