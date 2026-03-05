@@ -93,3 +93,73 @@ def build_yearly_source_disposition_chart_data(rows) -> dict:
         "total_exports": total_exports,
 
     }
+
+
+def build_state_comparison_chart_data(rows, year: int) -> dict:
+    """
+    Transform one-year, all-state rows into Plotly-friendly lists.
+    """
+    def get_int(row, column):
+        value = row[column]
+        return int(value) if value is not None else 0
+
+    generation_rows = sorted(
+        rows,
+        key=lambda row: get_int(row, "total_net_generation"),
+        reverse=True,
+    )
+
+    generation_states = [row["state"] for row in generation_rows]
+    generation_state_names = [row["state_description"] for row in generation_rows]
+    total_generation = [get_int(row, "total_net_generation") for row in generation_rows]
+
+    imports_by_state = []
+    exports_by_state = []
+
+    for row in rows:
+        net_trade = get_int(row, "net_interstate_trade")
+        international_imports = get_int(row, "total_international_imports")
+        international_exports = get_int(row, "total_international_exports")
+
+        interstate_imports = max(0, net_trade)
+        # EIA represents exports as negative interstate trade
+        interstate_exports = max(0, -net_trade)
+
+        imports_by_state.append(
+            {
+                "state": row["state"],
+                "state_description": row["state_description"],
+                "total_imports": interstate_imports + international_imports,
+            }
+        )
+        exports_by_state.append(
+            {
+                "state": row["state"],
+                "state_description": row["state_description"],
+                "total_exports": interstate_exports + international_exports,
+            }
+        )
+
+    imports_rows = sorted(
+        imports_by_state,
+        key=lambda row: row["total_imports"],
+        reverse=True,
+    )
+    exports_rows = sorted(
+        exports_by_state,
+        key=lambda row: row["total_exports"],
+        reverse=True,
+    )
+
+    return {
+        "year": year,
+        "generation_states": generation_states,
+        "generation_state_names": generation_state_names,
+        "total_generation": total_generation,
+        "import_states": [row["state"] for row in imports_rows],
+        "import_state_names": [row["state_description"] for row in imports_rows],
+        "total_imports": [row["total_imports"] for row in imports_rows],
+        "export_states": [row["state"] for row in exports_rows],
+        "export_state_names": [row["state_description"] for row in exports_rows],
+        "total_exports": [row["total_exports"] for row in exports_rows],
+    }

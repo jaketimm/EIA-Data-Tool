@@ -3,7 +3,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: #f7f7f7;
   color: #212529;
 }
 
@@ -13,7 +13,7 @@ main {
 
 /* ── Navbar ──────────────────────────────────────────────────────────────── */
 .navbar {
-  border-bottom: 3px solid #ffc107;
+  border-bottom: 3px solid #b08d57;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -24,40 +24,66 @@ main {
 }
 
 .navbar-brand span {
-  color: #ffc107;
+  color: #b08d57;
 }
 
 .nav-link {
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: 0.02em;
+  color: #d6d9de !important;
   transition: color 0.15s ease;
 }
 
 .nav-link:hover {
-  color: #ffc107 !important;
+  color: #d2b48c !important;
 }
 
 .nav-link.active {
-  color: #ffc107 !important;
-  border-bottom: 2px solid #ffc107;
+  color: #b08d57 !important;
+  border-bottom: 2px solid #b08d57;
+}
+
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item:active {
+  background-color: #d3b993;
+  color: #212529;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background-color: #f2e9dc;
+  color: #5f4a2c;
 }
 
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 footer {
   border-top: 1px solid #343a40;
   font-size: 0.8rem;
+  color: #c9ced6;
+}
+
+footer.text-secondary {
+  color: #c9ced6 !important;
+}
+
+footer p {
+  color: #c9ced6;
 }
 
 footer a {
-  color: #adb5bd;
+  color: #d8dde5;
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 footer a:hover {
-  color: #ffc107;
+  color: #d2b48c;
   text-decoration: underline;
+}
+
+footer .text-muted {
+  color: #b7bec8 !important;
 }
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
@@ -78,20 +104,34 @@ footer a:hover {
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 .btn-primary {
-  background-color: #ffc107;
-  border-color: #ffc107;
+  background-color: #b08d57;
+  border-color: #b08d57;
   color: #212529;
   font-weight: 600;
 }
 
 .btn-primary:hover {
-  background-color: #e0a800;
-  border-color: #e0a800;
+  background-color: #c3a170;
+  border-color: #c3a170;
+  color: #212529;
+}
+
+.btn-primary:focus-visible {
+  background-color: #c3a170;
+  border-color: #c3a170;
+  box-shadow: 0 0 0 0.2rem rgba(176, 141, 87, 0.25);
   color: #212529;
 }
 
 .btn-outline-secondary {
   font-weight: 500;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus-visible {
+  background-color: #f2e9dc;
+  border-color: #d6c3a1;
+  color: #4e3f28;
 }
 
 /* ── Utility ─────────────────────────────────────────────────────────────── */

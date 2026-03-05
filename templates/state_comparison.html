@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}State Comparison — EIA Data Tool{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/state-comparison.css') }}" />
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header row mb-3">
+  <div class="col">
+    <h2 class="mb-0">State Comparison — Source &amp; Disposition</h2>
+    <p class="text-muted mt-1 mb-0">
+      Compare all 50 states for a single year. Values in megawatthours (MWh).
+    </p>
+  </div>
+</div>
+
+<div class="card filter-card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-sm-4 col-md-3">
+        <label for="year" class="form-label">Year</label>
+        <select id="year" class="form-select">
+          {% for y in range(max_year, min_year - 1, -1) %}
+            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="comparison-error" class="alert alert-danger d-none" role="alert"></div>
+
+<div class="row chart-row justify-content-center">
+  <div class="col-lg-8 mb-3">
+    <div class="chart-card">
+      <p class="chart-title">Total Net Generation by State</p>
+      <p class="chart-subtitle">Highest generation appears at the top.</p>
+      <div id="generation-by-state" class="chart-container"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row chart-row">
+  <div class="col-lg-6 mb-3 mb-lg-0">
+    <div class="chart-card">
+      <p class="chart-title">Total Imports by State</p>
+      <p class="chart-subtitle">
+        Interstate plus international imports. Highest values appear at the top.
+      </p>
+      <div id="imports-by-state" class="chart-container"></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="chart-card">
+      <p class="chart-title">Total Exports by State</p>
+      <p class="chart-subtitle">
+        Interstate plus international exports. Highest values appear at the top.
+      </p>
+      <div id="exports-by-state" class="chart-container"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.stateComparisonConfig = {
+    selectedYear: Number({{ selected_year | tojson }}),
+  };
+</script>
+<script src="{{ url_for('static', filename='js/state-comparison-charts.js') }}"></script>
+{% endblock %}

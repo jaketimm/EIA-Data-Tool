@@ -1,0 +1,41 @@
+.page-header h2 {
+  font-weight: 700;
+}
+
+.filter-card {
+  border-left: 4px solid #b08d57;
+}
+
+.chart-row {
+  margin-bottom: 0.5rem;
+}
+
+.chart-card {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.6rem;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.chart-card .chart-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.chart-card .chart-subtitle {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.chart-card .chart-container {
+  min-height: 0;
+}
+
+@media (max-width: 991.98px) {
+  .chart-card .chart-container {
+    min-height: 0;
+  }
+}

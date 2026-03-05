@@ -1,13 +1,17 @@
-from flask import Flask, render_template, request
+from flask import Flask, jsonify, render_template, request
 import threading
 
 from db.db import (
     get_yearly_source_disposition,
+    get_yearly_state_comparison,
     get_yearly_source_disposition_states,
     get_yearly_source_disposition_year_range,
 )
 from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
-from utils.chart_data_formatters import build_yearly_source_disposition_chart_data
+from utils.chart_data_formatters import (
+    build_state_comparison_chart_data,
+    build_yearly_source_disposition_chart_data,
+)
 from utils.logger import get_logger
 from utils.log_reader import read_log_records
 logger = get_logger(__name__)
@@ -65,6 +69,7 @@ def index():
                 "loading.html",
                 startup_status=startup_status,
                 startup_error=startup_error,
+                next_path=request.full_path.rstrip("?"),
             ),
             202,
         )
@@ -107,6 +112,77 @@ def index():
         max_year=max_year,
         chart_data=chart_data,
     )
+
+
+@app.route("/state-comparison")
+def state_comparison():
+    _ensure_startup_fetch_started()
+    startup_status, startup_error = _get_startup_state()
+
+    if startup_status != "ready":
+        return (
+            render_template(
+                "loading.html",
+                startup_status=startup_status,
+                startup_error=startup_error,
+                next_path=request.full_path.rstrip("?"),
+            ),
+            202,
+        )
+
+    min_year, max_year = get_yearly_source_disposition_year_range()
+    try:
+        selected_year = int(request.args.get("year", max_year))
+    except ValueError:
+        selected_year = max_year
+
+    selected_year = max(min_year, min(max_year, selected_year))
+
+    return render_template(
+        "state_comparison.html",
+        selected_year=selected_year,
+        min_year=min_year,
+        max_year=max_year,
+    )
+
+
+@app.route("/api/state-comparison-data")
+def state_comparison_data():
+    _ensure_startup_fetch_started()
+    startup_status, startup_error = _get_startup_state()
+    if startup_status != "ready":
+        return (
+            jsonify(
+                {
+                    "error": "Data is still being prepared.",
+                    "status": startup_status,
+                    "details": startup_error,
+                }
+            ),
+            503,
+        )
+
+    min_year, max_year = get_yearly_source_disposition_year_range()
+    year_raw = request.args.get("year")
+    if year_raw is None:
+        year = max_year
+    else:
+        try:
+            year = int(year_raw)
+        except ValueError:
+            return jsonify({"error": "Invalid year parameter."}), 400
+
+    if year < min_year or year > max_year:
+        return (
+            jsonify(
+                {"error": f"Year must be between {min_year} and {max_year}."}
+            ),
+            400,
+        )
+
+    rows = get_yearly_state_comparison(year)
+    chart_data = build_state_comparison_chart_data(rows, year)
+    return jsonify(chart_data)
 
 
 @app.route("/startup-status")

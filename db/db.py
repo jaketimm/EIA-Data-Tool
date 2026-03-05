@@ -11,6 +11,7 @@ insert_yearly_source_disposition(records)
 get_yearly_source_disposition(state, start_year, end_year)
 get_yearly_source_disposition_states()
 get_yearly_source_disposition_year_range()
+get_yearly_state_comparison(period)
 """
 
 import sqlite3
@@ -29,7 +30,7 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
-# ── yearly_source_disposition — writes ───────────────────────────────────────
+# ── yearly_source_disposition table — writes ───────────────────────────────────────
 def insert_yearly_source_disposition(records: list[dict]) -> int:
     """
     Create and update the yearly_source_disposition table.
@@ -102,7 +103,7 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
         raise
 
 
-# ── yearly_source_disposition — reads ────────────────────────────────────────
+# ── yearly_source_disposition table — reads ────────────────────────────────────────
 def get_yearly_source_disposition(
     state: str | None = None,
     start_year: int | None = None,
@@ -182,4 +183,38 @@ def get_yearly_source_disposition_year_range() -> tuple[int, int]:
         raise
     except Exception as exc:
         logger.error("Unexpected error in get_yearly_source_disposition_year_range: %s", exc)
+        raise
+
+
+def get_yearly_state_comparison(period: int) -> list[sqlite3.Row]:
+    """
+    Return one row per U.S. state for a given year.
+    Excludes aggregate U.S. totals and DC so the result contains 50 states.
+    """
+    try:
+        conn = get_connection()
+        rows = conn.execute(
+            """
+            SELECT
+                period,
+                state,
+                state_description,
+                net_interstate_trade,
+                total_international_exports,
+                total_international_imports,
+                total_net_generation
+            FROM yearly_source_disposition
+            WHERE period = ?
+              AND state NOT IN ('US', 'DC')
+            ORDER BY state ASC
+            """,
+            (period,),
+        ).fetchall()
+        conn.close()
+        return rows
+    except sqlite3.Error as exc:
+        logger.error("SQLite error in get_yearly_state_comparison: %s", exc)
+        raise
+    except Exception as exc:
+        logger.error("Unexpected error in get_yearly_state_comparison: %s", exc)
         raise

@@ -31,11 +31,29 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
+          <li class="nav-item dropdown">
             <a
-              class="nav-link {% if request.path == '/' %}active{% endif %}"
-              href="/"
+              class="nav-link dropdown-toggle {% if request.path in ['/', '/state-comparison'] %}active{% endif %}"
+              href="#"
+              id="sourceDispositionDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >Source &amp; Disposition</a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sourceDispositionDropdown">
+              <li>
+                <a
+                  class="dropdown-item {% if request.path == '/' %}active{% endif %}"
+                  href="{{ url_for('index') }}"
+                >State Breakdown</a>
+              </li>
+              <li>
+                <a
+                  class="dropdown-item {% if request.path == '/state-comparison' %}active{% endif %}"
+                  href="{{ url_for('state_comparison') }}"
+                >State Comparision</a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item">
             <a
