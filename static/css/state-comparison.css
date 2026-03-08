@@ -1,7 +1,11 @@
 .page-header h2 {
   font-weight: 700;
+  font-size: 1.4rem;
 }
 
+.page-header p {
+  font-size: 0.85rem;
+}
 
 .chart-row {
   margin-bottom: 0.5rem;
