@@ -18,7 +18,7 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from db.db import insert_yearly_source_disposition
+from db.db import insert_yearly_source_disposition, table_exists
 from utils.logger import get_logger
 logger = get_logger(__name__)
 
@@ -182,8 +182,8 @@ def fetch_eia_source_data():
         raise RuntimeError("EIA_API_KEY is not set.")
 
     if data_is_fresh():
-        if not (DB_DIR / "eia.db").exists():
-            logger.warning("Data is fresh but DB is missing — rebuilding from cached JSON.")
+        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition"):
+            logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
             try:
                 with open(JSON_FILE) as f:
                     records = json.load(f)["records"]

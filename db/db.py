@@ -30,6 +30,15 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+def table_exists(table_name: str) -> bool:
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (table_name,)
+        )
+        return cursor.fetchone() is not None
+    
+
 # ── yearly_source_disposition table — writes ───────────────────────────────────────
 def insert_yearly_source_disposition(records: list[dict]) -> int:
     """
@@ -217,4 +226,74 @@ def get_yearly_state_comparison(period: int) -> list[sqlite3.Row]:
         raise
     except Exception as exc:
         logger.error("Unexpected error in get_yearly_state_comparison: %s", exc)
+        raise
+
+
+# ── yearly_generation_capacities table — writes ───────────────────────────────────────
+def insert_yearly_generation_capacities(records: list[dict]) -> int:
+    """
+    Create and update the yearly_generation_capacities table.
+    Returns the number of rows inserted.
+
+    All energy values are in megawatts (MW).
+    """
+        
+    def _to_float(val):
+        if val is None:
+            return None
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return None
+        
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS yearly_generation_capacities (
+                period                      INTEGER NOT NULL,
+                state                       TEXT    NOT NULL,
+                state_description           TEXT    NOT NULL,
+                energy_source_id        TEXT,
+                energy_source_description TEXT,
+                capability        REAL,
+                PRIMARY KEY (period, state, energy_source_id)
+            )
+        """)
+
+        rows = [
+            (
+                int(r["period"]),
+                r["stateId"],
+                r["stateDescription"],
+                r["energysourceid"],
+                r["energySourceDescription"],
+                _to_float(r.get("capability")),
+            )
+            for r in records
+        ]
+
+        # Only add rows with a new PRIMARY KEY (period, state, energy_source_id)
+        cur.executemany(
+            """
+            INSERT OR IGNORE INTO yearly_generation_capacities
+                (period, state, state_description,
+                 energy_source_id, energy_source_description,
+                 capability)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            rows,
+        )
+
+        conn.commit()
+        inserted = conn.total_changes
+        conn.close()
+        return inserted
+
+    except sqlite3.Error as exc:
+        logger.error("SQLite error in insert_yearly_generation_capacities: %s", exc)
+        raise
+    except Exception as exc:
+        logger.error("Unexpected error in insert_yearly_generation_capacities: %s", exc)
         raise

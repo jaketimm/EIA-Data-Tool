@@ -4,7 +4,7 @@ Fetch EIA State Electricity Profiles — Generating Capacities data
 (V2 API), cache the raw JSON to data/, and load it into SQLite via
 the db module.
 
-All energy values are in megawatthours (MWh).
+All energy values are in megawatts (MW).
 
 Usage (from project root):
     python -m utils.fetch_yearly_generation_capacities_data          # skips if data < 30 days old
@@ -18,7 +18,7 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-#from db.db import insert_yearly_source_disposition
+from db.db import insert_yearly_generation_capacities, table_exists
 from utils.logger import get_logger
 logger = get_logger(__name__)
 
@@ -180,20 +180,19 @@ def fetch_eia_source_data():
         raise RuntimeError("EIA_API_KEY is not set.")
 
     if data_is_fresh():
-        
-        #if not (DB_DIR / "eia.db").exists():
-            #logger.warning("Data is fresh but DB is missing — rebuilding from cached JSON.")
-            #try:
-                #with open(JSON_FILE) as f:
-                    #records = json.load(f)["records"]
-            #except FileNotFoundError as exc:
-                #logger.error("JSON cache file not found when rebuilding DB: %s", exc)
-                #raise
-            #except Exception as exc:
-                #logger.error("Unexpected error loading JSON cache for DB rebuild: %s", exc)
-                #raise
-            #row_count = insert_yearly_source_disposition(records)
-            #logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_generation_capacities"):
+            logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
+            try:
+                with open(JSON_FILE) as f:
+                    records = json.load(f)["records"]
+            except FileNotFoundError as exc:
+                logger.error("JSON cache file not found when rebuilding DB: %s", exc)
+                raise
+            except Exception as exc:
+                logger.error("Unexpected error loading JSON cache for DB rebuild: %s", exc)
+                raise
+            row_count = insert_yearly_generation_capacities(records)
+            logger.info("Inserted %d rows into yearly_generation_capacities.", row_count)
         return
 
     logger.info(
@@ -209,8 +208,8 @@ def fetch_eia_source_data():
 
     save_json(records)
 
-    #row_count = insert_yearly_source_disposition(records)
-    #logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+    row_count = insert_yearly_generation_capacities(records)
+    logger.info("Inserted %d rows into yearly_generation_capacities.", row_count)
 
 
 if __name__ == "__main__":
