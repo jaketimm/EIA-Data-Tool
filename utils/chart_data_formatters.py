@@ -7,11 +7,6 @@ def build_yearly_source_disposition_chart_data(rows) -> dict:
     Left  — total_net_generation
     Right — total_imports  (interstate + international)
             total_exports  (interstate + international)
-
-    Bar charts
-    ──────────
-    Left  — interstate import / export
-    Right — international import / export
     """
 
     rows_by_year = sorted(rows, key=lambda row: row["period"])

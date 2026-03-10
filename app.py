@@ -8,6 +8,7 @@ from db.db import (
     get_yearly_source_disposition_year_range,
 )
 from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
+from utils.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
 from utils.chart_data_formatters import (
     build_state_comparison_chart_data,
     build_yearly_source_disposition_chart_data,
@@ -28,6 +29,7 @@ def _run_startup_fetch() -> None:
 
     try:
         fetch_eia_source_data()
+        fetch_eia_capacities_data()
     except Exception as exc:
         logger.error("Startup fetch failed: %s", exc)
         with _startup_lock:

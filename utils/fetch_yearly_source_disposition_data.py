@@ -10,16 +10,16 @@ Usage (from project root):
     python -m utils.fetch_yearly_source_disposition_data          # skips if data < 30 days old
 """
 
-import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
 
 from db.db import insert_yearly_source_disposition, table_exists
+from utils.file_utils import data_is_fresh, load_json_cache, save_json_cache
 from utils.logger import get_logger
+
 logger = get_logger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -44,34 +44,6 @@ FIELDS = [
 START_YEAR = "1990"
 END_YEAR = "2024"
 BATCH_SIZE = 5000
-MAX_AGE_DAYS = 30
-
-
-# ── Freshness check ───────────────────────────────────────────────────────────
-def data_is_fresh() -> bool:
-    """Return True if the cached JSON exists and is less than MAX_AGE_DAYS old."""
-    if not JSON_FILE.exists():
-        return False
-
-    try:
-        with open(JSON_FILE) as f:
-            meta = json.load(f)
-        fetched_at = datetime.fromisoformat(meta["fetched_at"])
-        age = datetime.now(timezone.utc) - fetched_at
-        if age.days < MAX_AGE_DAYS:
-            logger.info(
-                "Cached data is %d day(s) old (fetched %s). "
-                "Threshold is %d days — skipping download.",
-                age.days,
-                fetched_at.strftime("%Y-%m-%d %H:%M UTC"),
-                MAX_AGE_DAYS,
-            )
-            return True
-        logger.info("Cached data is %d day(s) old — refreshing.", age.days)
-    except (json.JSONDecodeError, KeyError, ValueError) as exc:
-        logger.info("Could not read cache timestamp (%s) — will re-download.", exc)
-
-    return False
 
 
 # ── API helpers ───────────────────────────────────────────────────────────────
@@ -149,50 +121,17 @@ def fetch_all_records() -> list[dict]:
     return all_records
 
 
-def save_json(records: list[dict]) -> None:
-    """Write records + metadata to the JSON cache file."""
-    DATA_DIR.mkdir(exist_ok=True)
-    payload = {
-        "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "record_count": len(records),
-        "fields": FIELDS,
-        "units": "megawatthours",
-        "records": records,
-    }
-
-    try:
-        with open(JSON_FILE, "w") as f:
-            json.dump(payload, f, indent=2)
-    except FileNotFoundError as exc:
-        logger.error("Could not find path when saving JSON cache: %s", exc)
-        raise
-    except Exception as exc:
-        logger.error("Unexpected error saving JSON cache to %s: %s", JSON_FILE, exc)
-        raise
-
-    size_kb = JSON_FILE.stat().st_size / 1024
-    logger.info("Saved %d records to %s (%.1f KB).", len(records), JSON_FILE, size_kb)
-
-
 # ── Main ──────────────────────────────────────────────────────────────────────
-def fetch_eia_source_data():
+def fetch_eia_source_data() -> None:
 
     if not API_KEY:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         raise RuntimeError("EIA_API_KEY is not set.")
 
-    if data_is_fresh():
+    if data_is_fresh(JSON_FILE):
         if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition"):
             logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
-            try:
-                with open(JSON_FILE) as f:
-                    records = json.load(f)["records"]
-            except FileNotFoundError as exc:
-                logger.error("JSON cache file not found when rebuilding DB: %s", exc)
-                raise
-            except Exception as exc:
-                logger.error("Unexpected error loading JSON cache for DB rebuild: %s", exc)
-                raise
+            records = load_json_cache(JSON_FILE)
             row_count = insert_yearly_source_disposition(records)
             logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
         return
@@ -203,12 +142,10 @@ def fetch_eia_source_data():
     records = fetch_all_records()
 
     if not records:
-        logger.info(
-            "No records returned — double-check your API key and date range."
-        )
+        logger.info("No records returned — double-check your API key and date range.")
         raise ValueError("EIA API returned no records.")
 
-    save_json(records)
+    save_json_cache(JSON_FILE, records, FIELDS)
 
     row_count = insert_yearly_source_disposition(records)
     logger.info("Inserted %d rows into yearly_source_disposition.", row_count)

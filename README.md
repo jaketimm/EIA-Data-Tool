@@ -36,17 +36,12 @@ Create a .env file at the project root and add your key:
 EIA_API_KEY="your_key_here"
 ```
 
-Fetch data and populate the local database:
-
-```bash
-python -m utils.fetch_yearly_source_disposition_data
-````
-
 Start the app:
 ```bash
 python app.py
 ```
 Then open http://127.0.0.1:5000 in your browser.
+
 
 ## Project Structure
 ```
@@ -59,6 +54,7 @@ EIA-Data-Tool/
 │   ├── logger.py
 │   ├── log_reader.py
 │   ├── chart_data_formatters.py
+│   ├── fetch_yearly_generation_capacities_data.py
 │   └── fetch_yearly_source_disposition_data.py
 ├── db/
 │   ├── __init__.py
