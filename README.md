@@ -60,11 +60,13 @@ EIA-Data-Tool/
 ├── db/
 │   ├── __init__.py
 │   ├── eia.db
-│   └── db.py
+│   ├── connection.py
+│   ├── source_disposition.py
+│   └── generation_capacities.py
 ├── logs/
 ├── static/
 │   ├── css/
 │   └── js/
 ├── templates/
 └── data/
-```
+```generation_capacities.py

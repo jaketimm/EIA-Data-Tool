@@ -16,7 +16,8 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from db.db import insert_yearly_generation_capacities, table_exists
+from db.generation_capacities import insert_yearly_generation_capacities
+from db.connection import table_exists
 from utils.file_utils import data_is_fresh, load_json_cache, save_json_cache
 from utils.logger import get_logger
 

@@ -1,15 +1,17 @@
 from flask import Flask, jsonify, render_template, request
 import threading
 
-from db.db import (
+from db.source_disposition import(
     get_yearly_source_disposition,
     get_yearly_state_comparison,
     get_yearly_source_disposition_states,
-    get_yearly_source_disposition_year_range,
+    get_yearly_source_disposition_year_range)
+
+from db.generation_capacities import(
     get_generation_capacities_state_list,
     get_generation_capacities_year_range,
-    get_generation_capacities_for_state,
-)
+    get_generation_capacities_for_state)
+
 from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
 from utils.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
 from utils.chart_data_formatters import (
