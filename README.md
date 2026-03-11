@@ -55,7 +55,8 @@ EIA-Data-Tool/
 │   ├── log_reader.py
 │   ├── chart_data_formatters.py
 │   ├── fetch_yearly_generation_capacities_data.py
-│   └── fetch_yearly_source_disposition_data.py
+│   ├── fetch_yearly_source_disposition_data.py
+│   └── file_utils.py
 ├── db/
 │   ├── __init__.py
 │   ├── eia.db

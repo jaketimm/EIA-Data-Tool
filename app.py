@@ -6,12 +6,16 @@ from db.db import (
     get_yearly_state_comparison,
     get_yearly_source_disposition_states,
     get_yearly_source_disposition_year_range,
+    get_generation_capacities_state_list,
+    get_generation_capacities_year_range,
+    get_generation_capacities_for_state,
 )
 from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
 from utils.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
 from utils.chart_data_formatters import (
     build_state_comparison_chart_data,
     build_yearly_source_disposition_chart_data,
+    build_generation_capacities_chart_data,
 )
 from utils.logger import get_logger
 from utils.log_reader import read_log_records
@@ -79,7 +83,7 @@ def index():
     states = get_yearly_source_disposition_states()
     min_year, max_year = get_yearly_source_disposition_year_range()
 
-    selected_state = request.args.get("state", "")
+    selected_state = request.args.get("state", states[0]["state"] if states else "")
     try:
         start_year = int(request.args.get("start_year", min_year))
         end_year = int(request.args.get("end_year", max_year))
@@ -93,7 +97,7 @@ def index():
 
     rows = (
         get_yearly_source_disposition(
-            state=selected_state or None,
+            state=selected_state,
             start_year=start_year,
             end_year=end_year,
         )
@@ -184,6 +188,132 @@ def state_comparison_data():
 
     rows = get_yearly_state_comparison(year)
     chart_data = build_state_comparison_chart_data(rows, year)
+    return jsonify(chart_data)
+
+
+@app.route("/generation-capacities")
+def generation_capacities():
+    _ensure_startup_fetch_started()
+    startup_status, startup_error = _get_startup_state()
+
+    if startup_status != "ready":
+        return (
+            render_template(
+                "loading.html",
+                startup_status=startup_status,
+                startup_error=startup_error,
+                next_path=request.full_path.rstrip("?"),
+            ),
+            202,
+        )
+
+    states = get_generation_capacities_state_list()
+    if not states:
+        return render_template(
+            "generation_capacities.html",
+            states=[],
+            selected_state="",
+            min_year=0,
+            max_year=0,
+        )
+
+    selected_state = request.args.get("state") or states[0]["state"]
+    selected_state = selected_state.upper()
+
+    min_year, max_year = get_generation_capacities_year_range()
+
+    def _clamp_year(value: int | None) -> int:
+        if value is None:
+            return max_year
+        return max(min_year, min(max_year, value))
+
+    try:
+        start_year = _clamp_year(int(request.args.get("start_year", min_year)))
+    except ValueError:
+        start_year = min_year
+    try:
+        end_year = _clamp_year(int(request.args.get("end_year", max_year)))
+    except ValueError:
+        end_year = max_year
+
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+
+    return render_template(
+        "generation_capacities.html",
+        states=states,
+        selected_state=selected_state,
+        start_year=start_year,
+        end_year=end_year,
+        min_year=min_year,
+        max_year=max_year,
+    )
+
+
+@app.route("/api/generation-capacities-data")
+def generation_capacities_data():
+    _ensure_startup_fetch_started()
+    startup_status, startup_error = _get_startup_state()
+
+    if startup_status != "ready":
+        return (
+            jsonify(
+                {
+                    "error": "Data is still being prepared.",
+                    "status": startup_status,
+                    "details": startup_error,
+                }
+            ),
+            503,
+        )
+
+    states = get_generation_capacities_state_list()
+    if not states:
+        return jsonify({"error": "No generation capacity data is available."}), 404
+
+    selected_state = request.args.get("state")
+    if not selected_state:
+        selected_state = states[0]["state"]
+    selected_state = selected_state.upper()
+
+    min_year, max_year = get_generation_capacities_year_range(selected_state)
+
+    def _parse_year(raw, fallback):
+        if raw is None:
+            return fallback
+        try:
+            return int(raw)
+        except ValueError:
+            raise
+
+    try:
+        start_year = _parse_year(request.args.get("start_year"), min_year)
+    except ValueError:
+        return jsonify({"error": "Invalid start_year parameter."}), 400
+    try:
+        end_year = _parse_year(request.args.get("end_year"), max_year)
+    except ValueError:
+        return jsonify({"error": "Invalid end_year parameter."}), 400
+
+    start_year = max(min_year, min(max_year, start_year))
+    end_year = max(min_year, min(max_year, end_year))
+
+    if start_year > end_year:
+        start_year, end_year = end_year, start_year
+
+    rows = get_generation_capacities_for_state(
+        selected_state,
+        start_year=start_year,
+        end_year=end_year,
+    )
+
+    chart_data = build_generation_capacities_chart_data(
+        rows,
+        state=selected_state,
+        state_description=rows[0]["state_description"] if rows else "",
+        year_range=(start_year, end_year),
+    )
+    chart_data.update({"start_year": start_year, "end_year": end_year})
     return jsonify(chart_data)
 
 

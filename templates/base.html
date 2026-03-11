@@ -57,6 +57,12 @@
           </li>
           <li class="nav-item">
             <a
+              class="nav-link {% if request.path == '/generation-capacities' %}active{% endif %}"
+              href="{{ url_for('generation_capacities') }}"
+            >Generation Capacities</a>
+          </li>
+          <li class="nav-item">
+            <a
               class="nav-link {% if request.path == '/logs' %}active{% endif %}"
               href="{{ url_for('logs') }}"
             >Logs</a>

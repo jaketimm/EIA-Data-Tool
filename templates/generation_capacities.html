@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Generation Capacities — EIA Data Tool{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/generation-capacities.css') }}" />
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header row mb-3">
+  <div class="col">
+    <h2 class="mb-0">State Generation Capacities</h2>
+    <p class="text-muted mt-1 mb-0">
+      View one state's total generation over time, stacked by energy source.
+    </p>
+  </div>
+</div>
+
+<div class="card filter-card mb-4">
+  <div class="card-body">
+    <form id="capacity-filters" class="row g-3 align-items-end" autocomplete="off">
+      <div class="col-sm-4 col-md-3">
+        <label for="capacity-state" class="form-label">State</label>
+        <select id="capacity-state" name="state" class="form-select">
+          {% for s in states %}
+            <option value="{{ s['state'] }}" {% if s['state'] == selected_state %}selected{% endif %}>
+              {{ s['state_description'] }} ({{ s['state'] }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-sm-3 col-md-2">
+        <label for="capacity-start-year" class="form-label">From year</label>
+        <input
+          type="number"
+          id="capacity-start-year"
+          name="start_year"
+          class="form-control"
+          min="{{ min_year }}"
+          max="{{ max_year }}"
+          value="{{ start_year }}"
+        />
+      </div>
+      <div class="col-sm-3 col-md-2">
+        <label for="capacity-end-year" class="form-label">To year</label>
+        <input
+          type="number"
+          id="capacity-end-year"
+          name="end_year"
+          class="form-control"
+          min="{{ min_year }}"
+          max="{{ max_year }}"
+          value="{{ end_year }}"
+        />
+      </div>
+      <div class="col-sm-2 col-md-2 d-flex gap-2">
+        <button type="button" id="capacity-refresh" class="btn btn-primary w-100">Filter</button>
+        <a href="/generation-capacities" class="btn btn-outline-secondary w-100">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="capacity-error" class="alert alert-danger d-none" role="alert"></div>
+
+<div class="chart-card">
+  <p class="chart-title">Net Generation by Source</p>
+  <p class="chart-subtitle">
+    Each year is represented by one bar, with segments for each reported energy source.
+  </p>
+  <div id="generation-capacities-chart" class="chart-container"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.generationCapacitiesConfig = {
+    selectedState: "{{ selected_state }}",
+    selectedYearStart: {{ start_year }},
+    selectedYearEnd: {{ end_year }},
+  };
+</script>
+<script src="{{ url_for('static', filename='js/generation-capacities-charts.js') }}"></script>
+{% endblock %}
