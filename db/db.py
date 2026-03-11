@@ -1,8 +1,6 @@
 """
 Database access layer.
 
-Connection helper
-─────────────────
 get_connection()   — returns a sqlite3.Connection to db/eia.db
 table_exists(table_name)   
 
@@ -17,7 +15,10 @@ get_yearly_state_comparison(period)
 yearly_generation_capacities
 ─────────────────────────
 insert_yearly_generation_capacities(records)
-
+get_generation_capacities_state_list
+get_generation_capacities_year_range(state)
+get_generation_capacities_by_year(period)
+get_generation_capacities_for_state(state, start_year, end_year)
 """
 
 import sqlite3

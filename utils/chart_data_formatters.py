@@ -170,7 +170,9 @@ CATEGORY_MAP = {
     "Petroleum - ST": "Petroleum",
     "Petroleum - IC": "Petroleum",
     "Petroleum - GT": "Petroleum",
+    "Petroleum - OTH": "Petroleum",
     "Solar - PV": "Solar",
+    "Solar - TH": "Solar",
     "Other Biomass": "Other",
     "Other Gas": "Other",
     "Other": "Other",
@@ -215,7 +217,7 @@ def build_generation_capacities_chart_data(rows, state: str, state_description: 
             ability.get(grouped_label, {}).get(period, 0.0) + value
 
 
-    # Bundle sources with an average generation of less than 200MW across all years into the 'Other' category
+    # Bundle sources with an average generation of less than 300MW across all years into the 'Other' category
     # These are hard to see in the stacked bar chart and add clutter. Skip bundling if the state's total output is <2000MW
     overall_avg = sum(
         sum(vals.values()) / len(vals)

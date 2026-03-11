@@ -162,3 +162,7 @@ footer .text-muted {
   color: #6c757d;
   margin-bottom: 0.75rem;
 }
+
+.js-plotly-plot .modebar {
+  top: -50px !important;
+}

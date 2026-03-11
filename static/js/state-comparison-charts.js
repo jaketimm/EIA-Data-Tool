@@ -17,7 +17,6 @@ if (!yearSelect || typeof Plotly === "undefined") {
       "pan2d",
       "select2d",
       "lasso2d",
-      "toImage",
       "zoomIn2d",
       "zoomOut2d",
       "resetScale2d",
@@ -30,12 +29,12 @@ if (!yearSelect || typeof Plotly === "undefined") {
   function baseLayout() {
     return {
       font: { family: "system-ui, sans-serif", size: 12 },
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(0,0,0,0)",
+      paper_bgcolor: "rgba(255,255,255,1)",
+      plot_bgcolor: "rgba(255,255,255,1)",
       margin: { t: 10, r: 15, b: 45, l: 15 },
       xaxis: {
         title: "MWh",
-        gridcolor: "#e9ecef",
+        gridcolor: "#dfe2e6",
         zeroline: true,
         zerolinecolor: "#adb5bd",
         zerolinewidth: 1,
@@ -61,7 +60,6 @@ if (!yearSelect || typeof Plotly === "undefined") {
         x: 0,
       },
       modebar: {
-        bgcolor: "rgba(248,249,250,0.92)",
         color: "#6c757d",
         activecolor: "#212529",
       },

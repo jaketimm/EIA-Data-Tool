@@ -36,7 +36,6 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
       "pan2d",
       "select2d",
       "lasso2d",
-      "toImage",
       "zoomIn2d",
       "zoomOut2d",
       "resetScale2d",
@@ -48,12 +47,12 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
   function baseLayout() {
     return {
       font: { family: "system-ui, sans-serif", size: 12 },
-      paper_bgcolor: "rgba(0,0,0,0)",
-      plot_bgcolor: "rgba(0,0,0,0)",
+      paper_bgcolor: "rgba(255,255,255,1)",
+      plot_bgcolor: "rgba(255,255,255,1)",
       margin: { t: 20, r: 20, b: 50, l: 70 },
       xaxis: {
         title: "Year",
-        gridcolor: "#e9ecef",
+        gridcolor: "#dfe2e6",
         tickmode: "array",
         tickvals: [],
         tickangle: -45,
@@ -81,7 +80,6 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
         itemwidth: 40
       },
       modebar: {
-        bgcolor: "rgba(248,249,250,0.92)",
         color: "#6c757d",
         activecolor: "#212529",
       },

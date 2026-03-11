@@ -21,14 +21,14 @@ const GREEN = "#7c9e6e";
 function baseLayout(yTitle) {
   return {
     font: { family: "system-ui, sans-serif", size: 12 },
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "rgba(0,0,0,0)",
+    paper_bgcolor: "rgba(255,255,255,1)",
+    plot_bgcolor: "rgba(255,255,255,1)",
     margin: { t: 10, r: 15, b: 55, l: 75 },
     xaxis: {
       title: "Year",
       tickmode: "linear",
       dtick: 2,
-      gridcolor: "#e9ecef",
+      gridcolor: "#dfe2e6",
       tickangle: -45,
       ...(yearMin !== null && yearMax !== null
         ? {
@@ -60,7 +60,6 @@ function baseLayout(yTitle) {
       x: 0,
     },
     modebar: {
-      bgcolor: "rgba(248,249,250,0.92)",
       color: "#6c757d",
       activecolor: "#212529",
     },
@@ -76,7 +75,6 @@ const plotCfg = {
     "pan2d",
     "select2d",
     "lasso2d",
-    "toImage",
     "zoomIn2d",
     "zoomOut2d",
     "resetScale2d",
