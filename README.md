@@ -12,17 +12,28 @@ This project is independent and not affiliated with the EIA.
 - Charts for generation and trade trends over time
 - Data cached locally in SQLite — only re-fetches from the API every 30 days
 
-## Requirements
+## Sample Charts
+
+### Vermont Yearly Net Generation By Source
+![Yearly Generation By Source](screenshots/Vermont_net_generation_by_source.png)
+
+### 2024 Net Generation By State
+![Net Generation](screenshots/2024_generation_by_state.png)
+
+
+## Setting Up The Project
+
+### Requirements
 
 - Python 3.11+
 - An EIA API key (free, see below)
 
-## Getting an API key
+### Getting an API key
 
 Register at [https://www.eia.gov/opendata/register.php](https://www.eia.gov/opendata/register.php). 
 Your key will be emailed to you.
 
-## Setup
+### Setup
 
 ```bash
 python -m venv venv
@@ -43,7 +54,7 @@ python app.py
 Then open http://127.0.0.1:5000 in your browser.
 
 
-## Project Structure
+### Project Structure
 ```
 EIA-Data-Tool/
 ├── .env
