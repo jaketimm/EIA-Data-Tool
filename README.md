@@ -53,10 +53,13 @@ EIA-Data-Tool/
 │   ├── __init__.py
 │   ├── logger.py
 │   ├── log_reader.py
-│   ├── chart_data_formatters.py
-│   ├── fetch_yearly_generation_capacities_data.py
-│   ├── fetch_yearly_source_disposition_data.py
-│   └── file_utils.py
+│   ├── file_utils.py
+│   ├── chart_formatters/
+│   │   ├── generation_capacities.py
+│   │   └── source_disposition.py
+│   └── eia_api/
+│       ├── fetch_yearly_generation_capacities_data.py
+│       └── fetch_yearly_source_disposition_data.py
 ├── db/
 │   ├── __init__.py
 │   ├── eia.db
@@ -69,4 +72,4 @@ EIA-Data-Tool/
 │   └── js/
 ├── templates/
 └── data/
-```generation_capacities.py
+```

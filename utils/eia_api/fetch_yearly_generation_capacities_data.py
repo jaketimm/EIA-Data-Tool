@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Fetch EIA State Electricity Profiles — Source & Disposition data
+Fetch EIA State Electricity Profiles — Generating Capacities data
 (V2 API), cache the raw JSON to data/, and load it into SQLite via
 the db module.
 
-All energy values are in megawatthours (MWh).
+All energy values are in megawatts (MW).
 
 Usage (from project root):
-    python -m utils.fetch_yearly_source_disposition_data          # skips if data < 30 days old
+    python -m utils.fetch_yearly_generation_capacities_data          # skips if data < 30 days old
 """
 
 import os
@@ -16,30 +16,27 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from db.source_disposition import insert_yearly_source_disposition
+from db.generation_capacities import insert_yearly_generation_capacities
 from db.connection import table_exists
 from utils.file_utils import data_is_fresh, load_json_cache, save_json_cache
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
 # ── Config ────────────────────────────────────────────────────────────────────
 API_KEY = os.getenv("EIA_API_KEY")
 BASE_URL = "https://api.eia.gov/v2"
-ROUTE = "electricity/state-electricity-profiles/source-disposition/data"
+ROUTE = "electricity/state-electricity-profiles/capability/data"
 
 DATA_DIR = PROJECT_ROOT / "data"
 DB_DIR = PROJECT_ROOT / "db"
-JSON_FILE = DATA_DIR / "eia_source_disposition.json"
+JSON_FILE = DATA_DIR / "eia_generation_capacities.json"
 
 FIELDS = [
-    "net-interstate-trade",
-    "total-international-exports",
-    "total-international-imports",
-    "total-net-generation",
+    "capability",
 ]
 
 START_YEAR = "1990"
@@ -59,6 +56,7 @@ def build_params(offset: int = 0) -> dict:
         "sort[0][direction]": "desc",
         "offset": offset,
         "length": BATCH_SIZE,
+        "facets[producertypeid][]": "TOT",  # filter to totals only (sum for all sectors, not broken down into utilities, independent producers)
     }
     for i, field in enumerate(FIELDS):
         params[f"data[{i}]"] = field
@@ -123,22 +121,22 @@ def fetch_all_records() -> list[dict]:
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-def fetch_eia_source_data() -> None:
+def fetch_eia_capacities_data() -> None:
 
     if not API_KEY:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         raise RuntimeError("EIA_API_KEY is not set.")
 
     if data_is_fresh(JSON_FILE):
-        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition"):
+        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_generation_capacities"):
             logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
             records = load_json_cache(JSON_FILE)
-            row_count = insert_yearly_source_disposition(records)
-            logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+            row_count = insert_yearly_generation_capacities(records)
+            logger.info("Inserted %d rows into yearly_generation_capacities.", row_count)
         return
 
     logger.info(
-        "Fetching EIA source & disposition data (%s–%s) …", START_YEAR, END_YEAR
+        "Fetching EIA generation capacities data (%s–%s) …", START_YEAR, END_YEAR
     )
     records = fetch_all_records()
 
@@ -146,11 +144,11 @@ def fetch_eia_source_data() -> None:
         logger.info("No records returned — double-check your API key and date range.")
         raise ValueError("EIA API returned no records.")
 
-    save_json_cache(JSON_FILE, records, FIELDS)
+    save_json_cache(JSON_FILE, records, FIELDS, units="megawatts")
 
-    row_count = insert_yearly_source_disposition(records)
-    logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+    row_count = insert_yearly_generation_capacities(records)
+    logger.info("Inserted %d rows into yearly_generation_capacities.", row_count)
 
 
 if __name__ == "__main__":
-    fetch_eia_source_data()
+    fetch_eia_capacities_data()

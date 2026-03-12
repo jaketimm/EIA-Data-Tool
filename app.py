@@ -12,13 +12,14 @@ from db.generation_capacities import(
     get_generation_capacities_year_range,
     get_generation_capacities_for_state)
 
-from utils.fetch_yearly_source_disposition_data import fetch_eia_source_data
-from utils.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
-from utils.chart_data_formatters import (
+from utils.eia_api.fetch_yearly_source_disposition_data import fetch_eia_source_data
+from utils.eia_api.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
+from utils.chart_formatters.source_disposition import (
     build_state_comparison_chart_data,
-    build_yearly_source_disposition_chart_data,
-    build_generation_capacities_chart_data,
+    build_yearly_source_disposition_chart_data
 )
+from utils.chart_formatters.generation_capacities import build_generation_capacities_chart_data
+
 from utils.logger import get_logger
 from utils.log_reader import read_log_records
 logger = get_logger(__name__)
