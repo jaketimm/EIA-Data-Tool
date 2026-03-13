@@ -31,9 +31,22 @@ _startup_status = "pending"  # pending | running | ready | error
 _startup_error: str | None = None
 
 
+# True: bypass the EIA APIs and use the data in the existing db/eia.db
+# False: Fetch fresh data from the EIA APIs - requires a .env file with an API key.
+# Will check data for freshness on subsequent runs and update it every 30 days.
+SKIP_FETCH = False
+
+
 def _run_startup_fetch() -> None:
     global _startup_status, _startup_error
 
+    if SKIP_FETCH:
+        logger.info("SKIP_FETCH enabled — using existing database.")
+        with _startup_lock:
+            _startup_status = "ready"
+        return
+    
+    logger.info("Fetching fresh data from EIA APIs.")
     try:
         fetch_eia_source_data()
         fetch_eia_capacities_data()

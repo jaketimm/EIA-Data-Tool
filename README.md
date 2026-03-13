@@ -21,37 +21,30 @@ This project is independent and not affiliated with the EIA.
 ![Net Generation](screenshots/2024_generation_by_state.png)
 
 
-## Setting Up The Project
-
-### Requirements
-
-- Python 3.11+
-- An EIA API key (free, see below)
-
-### Getting an API key
-
-Register at [https://www.eia.gov/opendata/register.php](https://www.eia.gov/opendata/register.php). 
-Your key will be emailed to you.
-
-### Setup
-
+## Setup
 ```bash
+git clone https://github.com/jaketimm/EIA-Data-Tool.git
+cd EIA-Data-Tool
+
 python -m venv venv
 source venv/bin/activate      # Windows: venv\Scripts\activate
-
 pip install -r requirements.txt
+
+python app.py
 ```
 
-Create a .env file at the project root and add your key:
+Then open http://127.0.0.1:5000 in your browser.
+
+By default, the app includes a pre-built database so no API key is needed. Set `SKIP_FETCH = True` in `app.py`.
+
+### Fetching fresh data (optional)
+
+Register for a free EIA API key at [eia.gov/opendata](https://www.eia.gov/opendata/register.php), then create a `.env` file at the project root:
 ```
 EIA_API_KEY="your_key_here"
 ```
 
-Start the app:
-```bash
-python app.py
-```
-Then open http://127.0.0.1:5000 in your browser.
+Set `SKIP_FETCH = False` in `app.py` and restart.
 
 
 ### Project Structure
