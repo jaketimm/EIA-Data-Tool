@@ -21,7 +21,7 @@
   <div class="card-body">
     <div class="row g-3 align-items-end">
       <div class="col-sm-4 col-md-3">
-        <label for="year" class="form-label">Year</label>
+        <label for="year" class="form-label">YEAR</label>
         <select id="year" class="form-select">
           {% for y in range(max_year, min_year - 1, -1) %}
             <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
