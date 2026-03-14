@@ -216,7 +216,42 @@ if (!yearSelect || typeof Plotly === "undefined") {
       },
       plotCfg
     );
+
+    renderTable(data);
+
   }
+
+  function renderTable(data) {
+    const tbody = document.getElementById("comparison-table-body");
+    if (!tbody) return;
+
+    if (!data || !data.generation_states || !data.generation_states.length) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No data available.</td></tr>`;
+      return;
+    }
+
+    // Build a lookup by state code
+    const importMap = Object.fromEntries(data.import_states.map((s, i) => [s, data.total_imports[i]]));
+    const exportMap = Object.fromEntries(data.export_states.map((s, i) => [s, data.total_exports[i]]));
+
+    const rows = data.generation_states.map((state, i) => {
+      const gen = data.total_generation[i];
+      const imp = importMap[state] ?? 0;
+      const exp = exportMap[state] ?? 0;
+      const fmt = (v) => v > 0 ? v.toLocaleString("en-US", { maximumFractionDigits: 0 }) : '<span class="null-value">—</span>';
+      return `
+      <tr>
+        <td><abbr title="${data.generation_state_names[i]}">${state}</abbr></td>
+        <td class="text-end">${fmt(gen)}</td>
+        <td class="text-end">${fmt(imp)}</td>
+        <td class="text-end">${fmt(exp)}</td>
+      </tr>
+    `;
+    }).join("");
+
+    tbody.innerHTML = rows;
+  }
+
 
   async function refreshCharts() {
     const year = Number(yearSelect.value);

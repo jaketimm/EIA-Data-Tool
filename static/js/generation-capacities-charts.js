@@ -10,23 +10,23 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
   console.warn("Generation capacities elements or Plotly missing; skipping render.");
 } else {
 
-    const CATEGORY_COLORS = {
-      "Coal":           "#4a4a4a", // dark gray
-      "Natural Gas":    "#5E81AC", // steel blue
-      "Petroleum":      "#7a5450", // muted brown-red
+  const CATEGORY_COLORS = {
+    "Coal": "#4a4a4a", // dark gray
+    "Natural Gas": "#5E81AC", // steel blue
+    "Petroleum": "#7a5450", // muted brown-red
 
-      "Nuclear":        "#b85c5b", // muted red
-      "Solar":          "#c9a03a", // muted gold
-      "Wind":           "#5a9e9a", // muted teal
-      "Hydroelectric":  "#3a7a9c", // muted water blue
-      "Wood":           "#4e8a45", // muted green
+    "Nuclear": "#b85c5b", // muted red
+    "Solar": "#c9a03a", // muted gold
+    "Wind": "#5a9e9a", // muted teal
+    "Hydroelectric": "#3a7a9c", // muted water blue
+    "Wood": "#4e8a45", // muted green
 
-      "Battery":        "#8a6e9e", // muted purple
-      "Pumped Storage": "#2a4f6e", // deep muted navy
+    "Battery": "#8a6e9e", // muted purple
+    "Pumped Storage": "#2a4f6e", // deep muted navy
 
-      "Other":          "#7a8490", // muted blue-gray
-    };
-    const FALLBACK_PALETTE = ["#5E81AC", "#4a4a4a", "#b85c5b", "#4e8a45"];
+    "Other": "#7a8490", // muted blue-gray
+  };
+  const FALLBACK_PALETTE = ["#5E81AC", "#4a4a4a", "#b85c5b", "#4e8a45"];
 
   const plotCfg = {
     responsive: true,
@@ -144,8 +144,8 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
       marker: {
         color: CATEGORY_COLORS[source.label] ?? FALLBACK_PALETTE[data.sources.indexOf(source) % FALLBACK_PALETTE.length],
         line: {
-            color: "#ffffff",
-            width: 0.5
+          color: "#ffffff",
+          width: 0.5
         }
       },
       hovertemplate: "<b>%{fullData.name}</b><br>%{y:,.0f} " + (data.unit || "MW") + "<extra></extra>",
@@ -165,6 +165,38 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
       },
       plotCfg
     );
+
+    renderTable(data);
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById("capacity-table-body");
+    if (!tbody) return;
+
+    if (!data || !data.sources || !data.sources.length) {
+      tbody.innerHTML = `<tr><td colspan="20" class="text-center text-muted">No data available.</td></tr>`;
+      return;
+    }
+    
+    const rows = [];
+    // flip the order of the years for the table only
+    [...data.years].reverse().forEach((year, i) => {
+      const yearIndex = data.years.indexOf(year);
+      const cells = data.sources.map(source => {
+        const val = source.values[yearIndex];
+        return `<td class="text-end">${val > 0 ? val.toLocaleString("en-US", { maximumFractionDigits: 1 }) : '<span class="null-value">—</span>'}</td>`;
+      }).join("");
+      rows.push(`<tr><td>${year}</td><td><abbr title="${data.state_label}">${data.state}</abbr></td>${cells}</tr>`);
+    });
+
+    tbody.innerHTML = rows.join("");
+
+    const thead = document.querySelector("#capacity-table thead tr");
+    if (thead) {
+      const sourceCols = data.sources.map(s => `<th class="text-end">${s.label}</th>`).join("");
+      thead.innerHTML = `<th>Year</th><th>State</th>${sourceCols}`;
+    }
+
   }
 
   async function refreshChart() {

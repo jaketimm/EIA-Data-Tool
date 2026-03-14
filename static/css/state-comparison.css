@@ -8,7 +8,7 @@
 }
 
 .chart-row {
-  margin-bottom: 0.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .filter-card .form-label {
@@ -58,6 +58,36 @@
   min-height: 0;
 }
 
+
+/* ── Results table ───────────────────────────────────────────────────────── */
+.table-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 25px;
+}
+
+.results-table thead th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.results-table tbody td {
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.results-table .null-value {
+  color: #ced4da;
+}
+
+.results-count {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
 
 
 @media (max-width: 991.98px) {

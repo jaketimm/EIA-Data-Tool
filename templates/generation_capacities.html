@@ -71,6 +71,38 @@
   </p>
   <div id="generation-capacities-chart" class="chart-container"></div>
 </div>
+
+<div class="page-header row mb-3 text-center">
+  <div class="col">
+    <h2 class="mb-0">Chart Data</h2>
+  </div>
+</div>
+
+<!-- ── Table ────────────────────────────────────────────────────────────────── -->
+<div class="table-container">
+  <div class="table-responsive d-inline-block">
+    <table class="table table-striped table-hover table-bordered results-table" id="capacity-table">
+      <thead class="table-dark">
+        <tr>
+          <th>Year</th>
+          <th>State</th>
+          <th class="text-end">Energy Source</th>
+          <th class="text-end">
+            <abbr title="Installed generation capacity in megawatts.">
+              Capability
+            </abbr>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="capacity-table-body">
+        <tr>
+          <td colspan="4" class="text-center text-muted">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="text-muted small mt-1">All readings are in MW</p>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}

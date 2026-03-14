@@ -37,7 +37,7 @@
   border-radius: 0.6rem;
   padding: 1rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  margin-bottom: 0.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .chart-card .chart-title {
@@ -54,6 +54,36 @@
 
 .chart-card .chart-container {
   min-height: 520px;
+}
+
+/* ── Results table ───────────────────────────────────────────────────────── */
+.table-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 25px;
+}
+
+.results-table thead th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.results-table tbody td {
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.results-table .null-value {
+  color: #ced4da;
+}
+
+.results-count {
+  font-size: 0.8rem;
+  color: #6c757d;
 }
 
 @media (max-width: 991.98px) {
