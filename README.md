@@ -63,7 +63,8 @@ EIA-Data-Tool/
 │   │   └── source_disposition.py
 │   └── eia_api/
 │       ├── fetch_yearly_generation_capacities_data.py
-│       └── fetch_yearly_source_disposition_data.py
+│       ├── fetch_yearly_source_disposition_data.py
+│       └── validator.py
 ├── db/
 │   ├── __init__.py
 │   ├── eia.db

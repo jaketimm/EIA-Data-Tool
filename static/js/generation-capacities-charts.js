@@ -10,40 +10,26 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
   console.warn("Generation capacities elements or Plotly missing; skipping render.");
 } else {
 
+  // Color palette 
   const CATEGORY_COLORS = {
-    "Coal": "#4a4a4a", // dark gray
-    "Natural Gas": "#5E81AC", // steel blue
-    "Petroleum": "#7a5450", // muted brown-red
+    "Coal": "#4a4a4a",
+    "Natural Gas": "#5E81AC",
+    "Petroleum": "#7a5450",
 
-    "Nuclear": "#b85c5b", // muted red
-    "Solar": "#c9a03a", // muted gold
-    "Wind": "#5a9e9a", // muted teal
-    "Hydroelectric": "#3a7a9c", // muted water blue
-    "Wood": "#4e8a45", // muted green
+    "Nuclear": "#b85c5b",
+    "Solar": "#c9a03a",
+    "Wind": "#5a9e9a",
+    "Hydroelectric": "#3a7a9c",
+    "Wood": "#4e8a45",
+    "Battery": "#8a6e9e",
+    "Pumped Storage": "#2a4f6e",
 
-    "Battery": "#8a6e9e", // muted purple
-    "Pumped Storage": "#2a4f6e", // deep muted navy
-
-    "Other": "#7a8490", // muted blue-gray
+    "Other": "#7a8490",
   };
   const FALLBACK_PALETTE = ["#5E81AC", "#4a4a4a", "#b85c5b", "#4e8a45"];
 
-  const plotCfg = {
-    responsive: true,
-    displayModeBar: "hover",
-    displaylogo: false,
-    modeBarButtonsToRemove: [
-      "pan2d",
-      "select2d",
-      "lasso2d",
-      "zoomIn2d",
-      "zoomOut2d",
-      "resetScale2d",
-      "hoverClosestCartesian",
-      "hoverCompareCartesian",
-    ],
-  };
 
+  // Shared chart layout and settings
   function baseLayout() {
     return {
       font: { family: "system-ui, sans-serif", size: 12 },
@@ -88,6 +74,22 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     };
   }
 
+  const plotCfg = {
+    responsive: true,
+    displayModeBar: "hover",
+    displaylogo: false,
+    modeBarButtonsToRemove: [
+      "pan2d",
+      "select2d",
+      "lasso2d",
+      "zoomIn2d",
+      "zoomOut2d",
+      "resetScale2d",
+      "hoverClosestCartesian",
+      "hoverCompareCartesian",
+    ],
+  };
+
   function chartHeight(data) {
     return Math.max(480, data.years.length * 26 + 180);
   }
@@ -102,7 +104,32 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     errorEl.classList.remove("d-none");
   }
 
+
   // Fetch data for the selected state when the filter button is pressed
+  async function refreshChart() {
+    const state = stateSelect.value;
+    const startYear = Number(startYearInput.value);
+    const endYear = Number(endYearInput.value);
+
+    try {
+      clearError();
+      const data = await fetchData(state, startYear, endYear);
+      renderChart(data);
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  // Initialize with config values
+  stateSelect.value = config.selectedState || stateSelect.value;
+  startYearInput.value = config.selectedYearStart || startYearInput.value;
+  endYearInput.value = config.selectedYearEnd || endYearInput.value;
+
+  refreshButton.addEventListener("click", refreshChart);
+  refreshChart();
+
+
+  // Call Flask route to query DB and update data
   async function fetchData(state, startYear, endYear) {
     const params = new URLSearchParams({
       state,
@@ -130,6 +157,8 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     return response.json();
   }
 
+
+  // Stacked Bar chart — Net Generation by Source
   function renderChart(data) {
     if (!data || !Array.isArray(data.sources) || !data.sources.length) {
       showError("No data is available for the selected filters.");
@@ -169,6 +198,8 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     renderTable(data);
   }
 
+
+  // HTML table of raw data below the chart
   function renderTable(data) {
     const tbody = document.getElementById("capacity-table-body");
     if (!tbody) return;
@@ -177,7 +208,7 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
       tbody.innerHTML = `<tr><td colspan="20" class="text-center text-muted">No data available.</td></tr>`;
       return;
     }
-    
+
     const rows = [];
     // flip the order of the years for the table only
     [...data.years].reverse().forEach((year, i) => {
@@ -199,25 +230,4 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
 
   }
 
-  async function refreshChart() {
-    const state = stateSelect.value;
-    const startYear = Number(startYearInput.value);
-    const endYear = Number(endYearInput.value);
-
-    try {
-      clearError();
-      const data = await fetchData(state, startYear, endYear);
-      renderChart(data);
-    } catch (err) {
-      showError(err.message);
-    }
-  }
-
-  // Initialize with config values
-  stateSelect.value = config.selectedState || stateSelect.value;
-  startYearInput.value = config.selectedYearStart || startYearInput.value;
-  endYearInput.value = config.selectedYearEnd || endYearInput.value;
-
-  refreshButton.addEventListener("click", refreshChart);
-  refreshChart();
 }

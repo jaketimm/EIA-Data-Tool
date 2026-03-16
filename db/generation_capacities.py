@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 DB_PATH = Path(__file__).resolve().parent.parent / "db" / "eia.db"
 
 
-# ── yearly_generation_capacities table — writes ───────────────────────────────────────
+# yearly_generation_capacities table — writes 
 def insert_yearly_generation_capacities(records: list[dict]) -> int:
     """
     Create and update the yearly_generation_capacities table.
@@ -88,7 +88,7 @@ def insert_yearly_generation_capacities(records: list[dict]) -> int:
         raise
 
 
-# ── yearly_generation_capacities table — reads ───────────────────────────────────────
+# yearly_generation_capacities table — reads
 def get_generation_capacities_state_list() -> list[sqlite3.Row]:
     """
     Return all state codes and descriptions available for generation capacities.

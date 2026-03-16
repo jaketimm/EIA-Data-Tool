@@ -4,6 +4,8 @@ if (!eia_data || typeof Plotly === "undefined") {
   console.warn("Chart data or Plotly is unavailable; skipping chart render.");
 } else {
 
+
+// Find year limits for chart x-axis
 const yearValues = (eia_data.years || [])
   .map((year) => Number(year))
   .filter((year) => Number.isFinite(year));
@@ -11,13 +13,14 @@ const yearValues = (eia_data.years || [])
 const yearMin = yearValues.length ? Math.min(...yearValues) : null;
 const yearMax = yearValues.length ? Math.max(...yearValues) : null;
 
-/* ── Colour palette ──────────────────────────────────────────────────────── */
+
+// Color palette 
 const BLUE = "#5E81AC";
 const DARK_BLUE = "#1f4970";
 const GREEN = "#7c9e6e";
 
 
-/** Shared layout — opaque tooltips, clean grid. */
+// Shared chart layout and settings
 function baseLayout(yTitle) {
   return {
     font: { family: "system-ui, sans-serif", size: 12 },
@@ -84,7 +87,7 @@ const plotCfg = {
   ],
 };
 
-/* ── Line chart — Generation ─────────────────────────────────────────────── */
+// Line chart — Net Generation 
 Plotly.newPlot(
   "line-generation",
   [
@@ -103,7 +106,7 @@ Plotly.newPlot(
   plotCfg
 );
 
-/* ── Line chart — Total Imports & Exports ────────────────────────────────── */
+// Line chart — Total Imports & Exports 
 Plotly.newPlot(
   "line-trade",
   [

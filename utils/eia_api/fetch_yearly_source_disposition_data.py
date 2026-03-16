@@ -27,7 +27,7 @@ logger = get_logger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# Config 
 API_KEY = os.getenv("EIA_API_KEY")
 BASE_URL = "https://api.eia.gov/v2"
 ROUTE = "electricity/state-electricity-profiles/source-disposition/data"
@@ -64,7 +64,7 @@ EXPECTED_FIELDS = {
 }
 
 
-# ── API helpers ───────────────────────────────────────────────────────────────
+# API helpers 
 def build_params(offset: int = 0) -> dict:
     """Flatten nested params into the query-string format the V2 API expects."""
     params = {
@@ -139,7 +139,7 @@ def fetch_all_records() -> list[dict]:
     return all_records
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# Main Process
 def fetch_eia_source_data() -> None:
 
     if not API_KEY:

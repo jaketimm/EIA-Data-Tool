@@ -5,27 +5,14 @@ const errorEl = document.getElementById("comparison-error");
 if (!yearSelect || typeof Plotly === "undefined") {
   console.warn("Year selector or Plotly is unavailable; skipping chart render.");
 } else {
+
+  // Color palette 
   const BLUE = "#5E81AC";
   const DARK_BLUE = "#1f4970";
   const GREEN = "#7c9e6e";
 
-  const plotCfg = {
-    responsive: true,
-    displayModeBar: "hover",
-    displaylogo: false,
-    modeBarButtonsToRemove: [
-      "pan2d",
-      "select2d",
-      "lasso2d",
-      "zoomIn2d",
-      "zoomOut2d",
-      "resetScale2d",
-      "hoverClosestCartesian",
-      "hoverCompareCartesian",
-      "toggleSpikelines",
-    ],
-  };
-
+  
+  // Shared chart layout and settings
   function baseLayout() {
     return {
       font: { family: "system-ui, sans-serif", size: 12 },
@@ -43,9 +30,9 @@ if (!yearSelect || typeof Plotly === "undefined") {
       yaxis: {
         automargin: true,
         ticklabelposition: "outside",
-        ticklen: 4,        // length of tick mark
-        tickwidth: 0,      // hide the tick mark itself if unwanted
-        standoff: 10,      // gap between label and axis
+        ticklen: 4,       
+        tickwidth: 0,     
+        standoff: 10,      
       },
       hoverlabel: {
         bgcolor: "#ffffff",
@@ -67,6 +54,23 @@ if (!yearSelect || typeof Plotly === "undefined") {
       bargap: 0.15,
     };
   }
+
+  const plotCfg = {
+    responsive: true,
+    displayModeBar: "hover",
+    displaylogo: false,
+    modeBarButtonsToRemove: [
+      "pan2d",
+      "select2d",
+      "lasso2d",
+      "zoomIn2d",
+      "zoomOut2d",
+      "resetScale2d",
+      "hoverClosestCartesian",
+      "hoverCompareCartesian",
+      "toggleSpikelines",
+    ],
+  };
 
   function chartHeight(categoryCount) {
     return Math.max(700, categoryCount * 12 + 120);
@@ -94,6 +98,26 @@ if (!yearSelect || typeof Plotly === "undefined") {
   }
 
   // Fetch data for the selected year when the dropdown selection changes
+  async function refreshCharts() {
+    const year = Number(yearSelect.value);
+
+    try {
+      clearError();
+      const data = await fetchComparisonData(year);
+      renderGenerationChart(data);
+      renderImportsChart(data);
+      renderExportsChart(data);
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  yearSelect.value = String(config.selectedYear || yearSelect.value);
+  yearSelect.addEventListener("change", refreshCharts);
+  refreshCharts();
+
+
+  // Call Flask route to query DB and update data
   async function fetchComparisonData(year) {
     const response = await fetch(`/api/state-comparison-data?year=${encodeURIComponent(year)}`, {
       cache: "no-store",
@@ -114,6 +138,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
     return response.json();
   }
 
+
+  // Bar chart — Net Generation
   function renderGenerationChart(data) {
     Plotly.newPlot(
       "generation-by-state",
@@ -144,6 +170,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
     );
   }
 
+
+  // Bar chart — Net Imports
   function renderImportsChart(data) {
     const sharedMax = getSharedTradeAxisMax(data);
 
@@ -181,6 +209,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
     );
   }
 
+
+  // Bar chart — Net Exports
   function renderExportsChart(data) {
     const sharedMax = getSharedTradeAxisMax(data);
 
@@ -221,12 +251,14 @@ if (!yearSelect || typeof Plotly === "undefined") {
 
   }
 
+
+  // HTML table of raw data below the chart
   function renderTable(data) {
     const tbody = document.getElementById("comparison-table-body");
     if (!tbody) return;
 
     if (!data || !data.generation_states || !data.generation_states.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No data available.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="20" class="text-center text-muted">No data available.</td></tr>`;
       return;
     }
 
@@ -251,23 +283,4 @@ if (!yearSelect || typeof Plotly === "undefined") {
 
     tbody.innerHTML = rows;
   }
-
-
-  async function refreshCharts() {
-    const year = Number(yearSelect.value);
-
-    try {
-      clearError();
-      const data = await fetchComparisonData(year);
-      renderGenerationChart(data);
-      renderImportsChart(data);
-      renderExportsChart(data);
-    } catch (err) {
-      showError(err.message);
-    }
-  }
-
-  yearSelect.value = String(config.selectedYear || yearSelect.value);
-  yearSelect.addEventListener("change", refreshCharts);
-  refreshCharts();
 }

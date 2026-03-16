@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 DB_PATH = Path(__file__).resolve().parent.parent / "db" / "eia.db"
 
 
-# ── yearly_source_disposition table — writes ───────────────────────────────────────
+# yearly_source_disposition table — writes
 def insert_yearly_source_disposition(records: list[dict]) -> int:
     """
     Create and update the yearly_source_disposition table.
@@ -91,7 +91,7 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
         raise
 
 
-# ── yearly_source_disposition table — reads ────────────────────────────────────────
+# yearly_source_disposition table — reads 
 def get_yearly_source_disposition(
     state: str | None = None,
     start_year: int | None = None,
