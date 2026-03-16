@@ -20,6 +20,7 @@ from db.generation_capacities import insert_yearly_generation_capacities
 from db.connection import table_exists
 from utils.file_utils import data_is_fresh, load_json_cache, save_json_cache
 from utils.logger import get_logger
+from utils.eia_api.validator import detect_schema_drift
 
 logger = get_logger(__name__)
 
@@ -42,6 +43,20 @@ FIELDS = [
 START_YEAR = "1990"
 END_YEAR = "2024"
 BATCH_SIZE = 5000
+
+
+# Expected JSON fields, used for schema validation
+EXPECTED_FIELDS = {
+    "period",
+    "stateId",
+    "stateDescription",
+    "producertypeid",
+    "producerTypeDescription",
+    "energysourceid",
+    "energySourceDescription",
+    "capability",
+    "capability-units",
+}
 
 
 # ── API helpers ───────────────────────────────────────────────────────────────
@@ -143,11 +158,19 @@ def fetch_eia_capacities_data() -> None:
     if not records:
         logger.info("No records returned — double-check your API key and date range.")
         raise ValueError("EIA API returned no records.")
+    
 
-    save_json_cache(JSON_FILE, records, FIELDS, units="megawatts")
+    data_is_valid = detect_schema_drift(EXPECTED_FIELDS, records)
 
-    row_count = insert_yearly_generation_capacities(records)
-    logger.info("Inserted %d rows into yearly_generation_capacities.", row_count)
+    if data_is_valid:
+        save_json_cache(JSON_FILE, records, FIELDS, units="megawatts")
+
+        row_count = insert_yearly_generation_capacities(records)
+        logger.info("Inserted %d rows into yearly_generation_capacities.", row_count)
+
+    else:
+        logger.info("Schema drift detected, skipped updating the DB")
+        raise RuntimeError("EIA data varied from expected schema")
 
 
 if __name__ == "__main__":
