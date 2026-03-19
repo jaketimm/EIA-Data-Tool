@@ -7,7 +7,7 @@ the db module.
 All energy values are in megawatts (MW).
 
 Usage (from project root):
-    python -m utils.fetch_yearly_generation_capacities_data          # skips if data < 30 days old
+    python -m utils.eia_api.fetch_yearly_generation_capacities_data          # skips if data < 30 days old
 """
 
 import os

@@ -91,6 +91,77 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
         raise
 
 
+def insert_yearly_consumption(records: list[dict]) -> int:
+    """
+    Create and update the yearly_consumption table.
+    Returns the number of rows inserted.
+
+    All energy values are in megawatthours (MWh).
+    """
+
+    def _to_int(val):
+        if val is None:
+            return None
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return None
+
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS yearly_consumption (
+                period                      INTEGER NOT NULL,
+                state                       TEXT    NOT NULL,
+                state_description           TEXT    NOT NULL,
+                total_net_generation        INTEGER,
+                total_elect_indust          INTEGER,
+                direct_use                  INTEGER,
+                unaccounted                 INTEGER,
+                PRIMARY KEY (period, state)
+            )
+        """)
+
+        rows = [
+            (
+                int(r["period"]),
+                r["state"],
+                r["stateDescription"],
+                _to_int(r.get("total-net-generation")),
+                _to_int(r.get("total-elect-indust")),
+                _to_int(r.get("direct-use")),
+                _to_int(r.get("unaccounted")),
+            )
+            for r in records
+        ]
+
+        # Only add rows with a new PRIMARY KEY (period, state)
+        cur.executemany(
+            """
+            INSERT OR IGNORE INTO yearly_consumption
+                (period, state, state_description,
+                 total_net_generation, total_elect_indust,
+                 direct_use, unaccounted)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            rows,
+        )
+
+        conn.commit()
+        inserted = conn.total_changes
+        conn.close()
+        return inserted
+
+    except sqlite3.Error as exc:
+        logger.error("SQLite error in insert_yearly_consumption: %s", exc)
+        raise
+    except Exception as exc:
+        logger.error("Unexpected error in insert_yearly_consumption: %s", exc)
+        raise
+
+
 # yearly_source_disposition table — reads 
 def get_yearly_source_disposition(
     state: str | None = None,

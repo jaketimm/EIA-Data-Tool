@@ -7,7 +7,7 @@ the db module.
 All energy values are in megawatthours (MWh).
 
 Usage (from project root):
-    python -m utils.fetch_yearly_source_disposition_data          # skips if data < 30 days old
+    python -m utils.eia_api.fetch_yearly_source_disposition_data          # skips if data < 30 days old
 """
 
 import os
@@ -16,7 +16,7 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from db.source_disposition import insert_yearly_source_disposition
+from db.source_disposition import insert_yearly_source_disposition, insert_yearly_consumption
 from db.connection import table_exists
 from utils.file_utils import data_is_fresh, load_json_cache, save_json_cache
 from utils.logger import get_logger
@@ -37,6 +37,11 @@ DB_DIR = PROJECT_ROOT / "db"
 JSON_FILE = DATA_DIR / "eia_source_disposition.json"
 
 FIELDS = [
+    # Consumption Data
+    "direct-use", 
+    "total-elect-indust",
+    "unaccounted",
+    # Generation Data
     "net-interstate-trade",
     "total-international-exports",
     "total-international-imports",
@@ -53,11 +58,17 @@ EXPECTED_FIELDS = {
     "period",
     "state",
     "stateDescription",
+    "direct-use",
+    "total-elect-indust",
     "net-interstate-trade",
+    "unaccounted",
     "total-international-exports",
     "total-international-imports",
     "total-net-generation",
+    "direct-use-units",
+    "total-elect-indust-units",
     "net-interstate-trade-units",
+    "unaccounted-units",
     "total-international-exports-units",
     "total-international-imports-units",
     "total-net-generation-units"
@@ -147,11 +158,13 @@ def fetch_eia_source_data() -> None:
         raise RuntimeError("EIA_API_KEY is not set.")
 
     if data_is_fresh(JSON_FILE):
-        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition"):
+        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition") or not table_exists("yearly_consumption"):
             logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
             records = load_json_cache(JSON_FILE)
             row_count = insert_yearly_source_disposition(records)
             logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+            row_count = insert_yearly_consumption(records)
+            logger.info("Inserted %d rows into yearly_consumption.", row_count)
         return
 
     logger.info(
@@ -167,9 +180,10 @@ def fetch_eia_source_data() -> None:
 
     if data_is_valid:
         save_json_cache(JSON_FILE, records, FIELDS)
-
         row_count = insert_yearly_source_disposition(records)
         logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+        row_count = insert_yearly_consumption(records)
+        logger.info("Inserted %d rows into yearly_consumption.", row_count)
 
     else:
         logger.info("Schema drift detected, skipped updating the DB")
