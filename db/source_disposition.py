@@ -116,7 +116,7 @@ def insert_yearly_consumption(records: list[dict]) -> int:
                 period                      INTEGER NOT NULL,
                 state                       TEXT    NOT NULL,
                 state_description           TEXT    NOT NULL,
-                total_net_generation        INTEGER,
+                estimated_losses            INTEGER,
                 total_elect_indust          INTEGER,
                 direct_use                  INTEGER,
                 unaccounted                 INTEGER,
@@ -129,7 +129,7 @@ def insert_yearly_consumption(records: list[dict]) -> int:
                 int(r["period"]),
                 r["state"],
                 r["stateDescription"],
-                _to_int(r.get("total-net-generation")),
+                _to_int(r.get("estimated-losses")),
                 _to_int(r.get("total-elect-indust")),
                 _to_int(r.get("direct-use")),
                 _to_int(r.get("unaccounted")),
@@ -142,7 +142,7 @@ def insert_yearly_consumption(records: list[dict]) -> int:
             """
             INSERT OR IGNORE INTO yearly_consumption
                 (period, state, state_description,
-                 total_net_generation, total_elect_indust,
+                 estimated_losses, total_elect_indust,
                  direct_use, unaccounted)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,

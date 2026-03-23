@@ -38,6 +38,7 @@ JSON_FILE = DATA_DIR / "eia_source_disposition.json"
 
 FIELDS = [
     # Consumption Data
+    "estimated-losses",
     "direct-use", 
     "total-elect-indust",
     "unaccounted",
@@ -58,6 +59,7 @@ EXPECTED_FIELDS = {
     "period",
     "state",
     "stateDescription",
+    "estimated-losses",
     "direct-use",
     "total-elect-indust",
     "net-interstate-trade",
@@ -65,6 +67,7 @@ EXPECTED_FIELDS = {
     "total-international-exports",
     "total-international-imports",
     "total-net-generation",
+    "estimated-losses-units",
     "direct-use-units",
     "total-elect-indust-units",
     "net-interstate-trade-units",
@@ -157,14 +160,21 @@ def fetch_eia_source_data() -> None:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         raise RuntimeError("EIA_API_KEY is not set.")
 
+    # Recreate DB if it was deleted or is missing
     if data_is_fresh(JSON_FILE):
-        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition") or not table_exists("yearly_consumption"):
+        records = None
+
+        if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_source_disposition"):
             logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
-            records = load_json_cache(JSON_FILE)
+            records = records or load_json_cache(JSON_FILE)
             row_count = insert_yearly_source_disposition(records)
             logger.info("Inserted %d rows into yearly_source_disposition.", row_count)
+
+        if not table_exists("yearly_consumption"):
+            records = records or load_json_cache(JSON_FILE)
             row_count = insert_yearly_consumption(records)
             logger.info("Inserted %d rows into yearly_consumption.", row_count)
+
         return
 
     logger.info(
