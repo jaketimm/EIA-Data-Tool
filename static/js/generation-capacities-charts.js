@@ -90,10 +90,6 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     ],
   };
 
-  function chartHeight(data) {
-    return Math.max(480, data.years.length * 26 + 180);
-  }
-
   function clearError() {
     errorEl.textContent = "";
     errorEl.classList.add("d-none");
@@ -185,7 +181,7 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
       traces,
       {
         ...baseLayout(),
-        height: chartHeight(data),
+        height: 800,
         xaxis: {
           ...baseLayout().xaxis,
           tickvals: data.years,

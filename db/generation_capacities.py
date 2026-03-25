@@ -1,5 +1,5 @@
 """
-yearly_generation_capacities database read/write operations
+Generation capacities database read/write operations
 ─────────────────────────
 insert_yearly_generation_capacities(records)
 get_generation_capacities_state_list

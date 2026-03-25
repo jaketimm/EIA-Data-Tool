@@ -1,7 +1,8 @@
 """
-yearly_source_disposition database read/write operations
+Source & disposition database read/write operations
 ─────────────────────────
 insert_yearly_source_disposition(records)
+insert_yearly_consumption(records)
 get_yearly_source_disposition(state, start_year, end_year)
 get_yearly_source_disposition_states()
 get_yearly_source_disposition_year_range()

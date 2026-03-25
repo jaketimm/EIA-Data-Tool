@@ -31,6 +31,10 @@
   box-shadow: 0 0 0 0.2rem rgba(137, 180, 212, 0.35);
 }
 
+.chart-card .chart-container {
+    height: 800px;
+}
+
 .chart-card {
   background: #ffffff;
   border: 1px solid #dee2e6;
@@ -50,10 +54,6 @@
   font-size: 0.85rem;
   color: #6c757d;
   margin-bottom: 0.5rem;
-}
-
-.chart-card .chart-container {
-  min-height: 520px;
 }
 
 /* ── Results table ───────────────────────────────────────────────────────── */
@@ -83,10 +83,4 @@
 .results-count {
   font-size: 0.8rem;
   color: #6c757d;
-}
-
-@media (max-width: 991.98px) {
-  .chart-card .chart-container {
-    min-height: 420px;
-  }
 }
