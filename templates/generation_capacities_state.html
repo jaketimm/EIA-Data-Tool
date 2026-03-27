@@ -3,7 +3,7 @@
 {% block title %}Generation Capacities — EIA Data Tool{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/generation-capacities.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/state-generation-capacities.css') }}" />
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 {% endblock %}
 
@@ -12,7 +12,7 @@
   <div class="col">
     <h2 class="mb-0">State Generation Capacities</h2>
     <p class="text-muted mt-1 mb-0">
-      View one state's total generation over time, stacked by energy source.
+      View one state's total generation over time, stacked by energy source. Values in MW.
     </p>
   </div>
 </div>
@@ -113,5 +113,5 @@
     selectedYearEnd: {{ end_year }},
   };
 </script>
-<script src="{{ url_for('static', filename='js/generation-capacities-charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/state-generation-capacities-charts.js') }}"></script>
 {% endblock %}

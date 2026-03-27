@@ -11,14 +11,14 @@ CATEGORY_MAP = {
     "Petroleum - OTH": "Petroleum",
     "Solar - PV": "Solar",
     "Solar - TH": "Solar",
-    "Other Biomass": "Other",
+    "Other Biomass": "Biomass",
     "Other Gas": "Other",
     "Other": "Other",
 }
 
 
-def build_generation_capacities_chart_data(rows, state: str, state_description: str | None,
-    year_range: tuple[int, int] | None = None,) -> dict:
+def build_state_capacities_chart_data(rows, state: str, state_description: str | None,
+                                      year_range: tuple[int, int] | None = None, ) -> dict:
     """
     Transform rows for one state into a per-year stacked bar dataset.
     """
@@ -101,3 +101,23 @@ def build_generation_capacities_chart_data(rows, state: str, state_description: 
         "sources": sources,
         "unit": "MW",
     }
+
+
+def build_national_capacities_chart_data(rows, year: int) -> dict:
+    """
+    Aggregate national capacity rows by grouped source category for pie charts.
+    """
+    totals: dict[str, float] = {}
+
+    for row in rows:
+        source_desc = row["energy_source_description"] or row["energy_source_id"] or "UNKNOWN"
+        grouped_label = CATEGORY_MAP.get(source_desc, source_desc)
+        value = float(row["capability"]) if row["capability"] is not None else 0.0
+        totals[grouped_label] = totals.get(grouped_label, 0.0) + value
+
+    sources = [
+        {"label": label, "total": total}
+        for label, total in sorted(totals.items(), key=lambda x: x[1], reverse=True)
+    ]
+
+    return {"year": year, "sources": sources}

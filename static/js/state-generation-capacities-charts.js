@@ -15,7 +15,6 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     "Coal": "#4a4a4a",
     "Natural Gas": "#5E81AC",
     "Petroleum": "#7a5450",
-
     "Nuclear": "#b85c5b",
     "Solar": "#c9a03a",
     "Wind": "#5a9e9a",
@@ -23,7 +22,6 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     "Wood": "#4e8a45",
     "Battery": "#8a6e9e",
     "Pumped Storage": "#2a4f6e",
-
     "Other": "#7a8490",
   };
   const FALLBACK_PALETTE = ["#5E81AC", "#4a4a4a", "#b85c5b", "#4e8a45"];

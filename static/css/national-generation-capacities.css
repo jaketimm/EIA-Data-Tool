@@ -1,0 +1,87 @@
+.page-header h2 {
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+
+.page-header p {
+  font-size: 0.85rem;
+}
+
+/* ── Filter card ─────────────────────────────────────────────────────────── */
+.filter-card .form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #495057;
+  margin-bottom: 0.3rem;
+}
+
+.filter-card .form-select,
+.filter-card .form-control {
+  font-size: 0.9rem;
+  border-radius: 0.375rem;
+  border: 1px solid #ced4da;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filter-card .form-select:focus,
+.filter-card .form-control:focus {
+  border-color: #89b4d4;
+  box-shadow: 0 0 0 0.2rem rgba(137, 180, 212, 0.35);
+}
+
+.chart-card {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.6rem;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2.5rem;
+}
+
+.chart-card .chart-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.chart-card .chart-subtitle {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.chart-card .chart-container {
+  width: 100%;
+}
+
+
+/* ── Results table ───────────────────────────────────────────────────────── */
+.table-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.results-table thead th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.results-table tbody td {
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.results-table .null-value {
+  color: #ced4da;
+}
+
+.results-count {
+  font-size: 0.8rem;
+  color: #6c757d;
+}

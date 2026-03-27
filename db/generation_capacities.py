@@ -6,6 +6,7 @@ get_generation_capacities_state_list
 get_generation_capacities_year_range(state)
 get_generation_capacities_by_year(period)
 get_generation_capacities_for_state(state, start_year, end_year)
+get_generation_capacities_national(year)
 """
 
 import sqlite3
@@ -224,3 +225,32 @@ def get_generation_capacities_for_state(state: str, start_year: int | None = Non
         raise
 
 
+def get_generation_capacities_national(year: int) -> list[sqlite3.Row]:
+    """
+    Return capacity breakdown rows aggregated across all states for a given year.
+    Excludes aggregate rows and DC.
+    """
+    query = """
+        SELECT
+            energy_source_id,
+            energy_source_description,
+            SUM(capability) as capability
+        FROM yearly_generation_capacities
+        WHERE period = ?
+          AND state NOT IN ('US', 'DC')
+          AND UPPER(COALESCE(energy_source_id, '')) <> 'ALL'
+          AND LOWER(COALESCE(energy_source_description, '')) NOT IN ('all', 'all?')
+        GROUP BY energy_source_id, energy_source_description
+        ORDER BY capability DESC
+    """
+    try:
+        conn = get_connection()
+        rows = conn.execute(query, (year,)).fetchall()
+        conn.close()
+        return rows
+    except sqlite3.Error as exc:
+        logger.error("SQLite error in get_generation_capacities_national: %s", exc)
+        raise
+    except Exception as exc:
+        logger.error("Unexpected error in get_generation_capacities_national: %s", exc)
+        raise

@@ -10,7 +10,8 @@ from db.source_disposition import(
 from db.generation_capacities import(
     get_generation_capacities_state_list,
     get_generation_capacities_year_range,
-    get_generation_capacities_for_state)
+    get_generation_capacities_for_state,
+    get_generation_capacities_national)
 
 from utils.eia_api.fetch_yearly_source_disposition_data import fetch_eia_source_data
 from utils.eia_api.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
@@ -18,7 +19,9 @@ from utils.chart_formatters.source_disposition import (
     build_state_comparison_chart_data,
     build_yearly_source_disposition_chart_data
 )
-from utils.chart_formatters.generation_capacities import build_generation_capacities_chart_data
+from utils.chart_formatters.generation_capacities import (
+    build_state_capacities_chart_data,
+    build_national_capacities_chart_data)
 
 from utils.logger import get_logger
 from utils.log_reader import read_log_records
@@ -207,7 +210,7 @@ def state_comparison_data():
     return jsonify(chart_data)
 
 
-@app.route("/generation-capacities")
+@app.route("/generation-capacities-state")
 def generation_capacities():
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
@@ -226,7 +229,7 @@ def generation_capacities():
     states = get_generation_capacities_state_list()
     if not states:
         return render_template(
-            "generation_capacities.html",
+            "generation_capacities_state.html",
             states=[],
             selected_state="",
             min_year=0,
@@ -256,7 +259,7 @@ def generation_capacities():
         start_year, end_year = end_year, start_year
 
     return render_template(
-        "generation_capacities.html",
+        "generation_capacities_state.html",
         states=states,
         selected_state=selected_state,
         start_year=start_year,
@@ -323,13 +326,86 @@ def generation_capacities_data():
         end_year=end_year,
     )
 
-    chart_data = build_generation_capacities_chart_data(
+    chart_data = build_state_capacities_chart_data(
         rows,
         state=selected_state,
         state_description=rows[0]["state_description"] if rows else "",
         year_range=(start_year, end_year),
     )
     chart_data.update({"start_year": start_year, "end_year": end_year})
+    return jsonify(chart_data)
+
+
+@app.route("/generation-capacities-national")
+def generation_capacities_national():
+    _ensure_startup_fetch_started()
+    startup_status, startup_error = _get_startup_state()
+
+    if startup_status != "ready":
+        return (
+            render_template(
+                "loading.html",
+                startup_status=startup_status,
+                startup_error=startup_error,
+                next_path=request.full_path.rstrip("?"),
+            ),
+            202,
+        )
+
+    min_year, max_year = get_generation_capacities_year_range()
+    try:
+        selected_year = int(request.args.get("year", max_year))
+    except ValueError:
+        selected_year = max_year
+
+    rows = get_generation_capacities_national(selected_year)
+    print(app.url_map)
+
+    return render_template(
+        "generation_capacities_national.html",
+        rows=rows,
+        selected_year=selected_year,
+        min_year=min_year,
+        max_year=max_year,
+    )
+
+
+@app.route("/generation-capacities-national-data")
+def generation_capacities_national_api():
+    _ensure_startup_fetch_started()
+    startup_status, startup_error = _get_startup_state()
+
+    if startup_status != "ready":
+        return (
+            jsonify({
+                "error": "Data is still being prepared.",
+                "status": startup_status,
+                "details": startup_error,
+            }),
+            503,
+        )
+
+    min_year, max_year = get_generation_capacities_year_range()
+
+    year_raw = request.args.get("year")
+    if year_raw is None:
+        year = max_year
+    else:
+        try:
+            year = int(year_raw)
+        except ValueError:
+            return jsonify({"error": "Invalid year parameter."}), 400
+
+    if year < min_year or year > max_year:
+        return jsonify({
+            "error": f"Year must be between {min_year} and {max_year}."
+        }), 400
+
+    rows = get_generation_capacities_national(year)
+
+    chart_data = build_national_capacities_chart_data(
+        rows, year
+    )
     return jsonify(chart_data)
 
 

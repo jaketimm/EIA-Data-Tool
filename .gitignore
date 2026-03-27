@@ -1,4 +1,5 @@
 .env
+suggested_refactoring.md
 __pycache__/
 *.pyc
 venv/

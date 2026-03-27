@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}National Generation Overview — EIA Data Tool{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/national-generation-capacities.css') }}" />
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header row mb-3">
+  <div class="col">
+    <h2 class="mb-0">National Generation Overview</h2>
+    <p class="text-muted mt-1 mb-0">
+      View the United States' total generation for one year, broken down by energy source. Values in MW.
+    </p>
+  </div>
+</div>
+
+<div class="card filter-card mb-4">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-sm-3 col-md-2">
+        <label for="national-year" class="form-label">Year</label>
+        <select id="national-year" class="form-select">
+          {% for y in range(max_year, min_year - 1, -1) %}
+            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="national-error" class="alert alert-danger d-none" role="alert"></div>
+
+<div class="row chart-row justify-content-center">
+  <div class="col-lg-6">
+    <div class="chart-card">
+      <p class="chart-title text-center">Total Capacity by Source</p>
+      <p class="chart-subtitle text-center">Installed generation capacity across all 50 states.</p>
+      <div id="national-total-chart" class="chart-container"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row chart-row">
+  <div class="col-lg-6">
+    <div class="chart-card">
+      <p class="chart-title text-center">Renewable Sources</p>
+      <p class="chart-subtitle text-center">Wind, solar, hydro, and other renewables.</p>
+      <div id="national-renewables-chart" class="chart-container"></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="chart-card">
+      <p class="chart-title text-center">Non-Renewable Sources</p>
+      <p class="chart-subtitle text-center">Natural gas, coal, petroleum, and nuclear.</p>
+      <div id="national-nonrenewables-chart" class="chart-container"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.nationalCapacitiesConfig = {
+    selectedYear: {{ selected_year }},
+    minYear: {{ min_year }},
+    maxYear: {{ max_year }},
+  };
+</script>
+<script src="{{ url_for('static', filename='js/national-generation-capacities-charts.js') }}"></script>
+{% endblock %}
