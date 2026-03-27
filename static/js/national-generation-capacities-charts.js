@@ -11,19 +11,19 @@ if (!yearSelect || typeof Plotly === "undefined") {
   const NON_RENEWABLES = new Set(["Natural Gas", "Coal", "Petroleum", "Nuclear", "Pumped Storage"]);
 
   const CATEGORY_COLORS = {
-    "Coal":           "#4a4a4a",
-    "Natural Gas":    "#5E81AC",
-    "Petroleum":      "#7a5450",
-    "Nuclear":        "#b85c5b",
-    "Solar":          "#c9a03a",
-    "Wind":           "#5a9e9a",
-    "Hydroelectric":  "#3a7a9c",
-    "Wood":           "#4e8a45",
-    "Battery":        "#8a6e9e",
+    "Coal": "#4a4a4a",
+    "Natural Gas": "#5E81AC",
+    "Petroleum": "#7a5450",
+    "Nuclear": "#b85c5b",
+    "Solar": "#c9a03a",
+    "Wind": "#5a9e9a",
+    "Hydroelectric": "#3a7a9c",
+    "Wood": "#4e8a45",
+    "Battery": "#8a6e9e",
     "Pumped Storage": "#2a4f6e",
-    "Other":          "#7a8490",
-    "Biomass":        "#bdaebf",
-    "Geothermal":     "#a986ad"
+    "Other": "#7a8490",
+    "Biomass": "#bdaebf",
+    "Geothermal": "#a986ad"
   };
 
   // Shared chart layout and settings
@@ -38,31 +38,31 @@ if (!yearSelect || typeof Plotly === "undefined") {
     ],
   };
 
-    function pieLayout() {
-      return {
-        font: { family: "system-ui, sans-serif", size: 12 },
-        paper_bgcolor: "rgba(255,255,255,1)",
-        plot_bgcolor: "rgba(255,255,255,1)",
-        margin: { t: 40, r: 20, b: 1, l: 20 },
-        hoverlabel: {
-          bgcolor: "#ffffff",
-          bordercolor: "#dee2e6",
-          font: { color: "#212529", size: 12 },
-        },
-        legend: {
-          orientation: "h",
-          yanchor: "top",
-          y: -0.2,
-          xanchor: "center",
-          x: 0.5,
-          traceorder: "normal",
-        },
-        modebar: {
-          color: "#6c757d",
-          activecolor: "#212529",
-        },
-      };
-    }
+  function pieLayout() {
+    return {
+      font: { family: "system-ui, sans-serif", size: 12 },
+      paper_bgcolor: "rgba(255,255,255,1)",
+      plot_bgcolor: "rgba(255,255,255,1)",
+      margin: { t: 40, r: 20, b: 1, l: 20 },
+      hoverlabel: {
+        bgcolor: "#ffffff",
+        bordercolor: "#dee2e6",
+        font: { color: "#212529", size: 12 },
+      },
+      legend: {
+        orientation: "h",
+        yanchor: "top",
+        y: -0.2,
+        xanchor: "center",
+        x: 0.5,
+        traceorder: "normal",
+      },
+      modebar: {
+        color: "#6c757d",
+        activecolor: "#212529",
+      },
+    };
+  }
 
   function clearError() {
     errorEl.textContent = "";

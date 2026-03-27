@@ -11,7 +11,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
   const DARK_BLUE = "#1f4970";
   const GREEN = "#7c9e6e";
 
-  
+
   // Shared chart layout and settings
   function baseLayout() {
     return {
@@ -30,9 +30,9 @@ if (!yearSelect || typeof Plotly === "undefined") {
       yaxis: {
         automargin: true,
         ticklabelposition: "outside",
-        ticklen: 4,       
-        tickwidth: 0,     
-        standoff: 10,      
+        ticklen: 4,
+        tickwidth: 0,
+        standoff: 10,
       },
       hoverlabel: {
         bgcolor: "#ffffff",

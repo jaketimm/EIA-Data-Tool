@@ -101,9 +101,9 @@
 
 /* ── Results table ───────────────────────────────────────────────────────── */
 .table-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .results-table thead th {

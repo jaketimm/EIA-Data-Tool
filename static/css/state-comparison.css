@@ -12,12 +12,12 @@
 }
 
 .filter-card .form-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #495057;
-    margin-bottom: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #495057;
+  margin-bottom: 0.3rem;
 }
 
 .filter-card .form-select,
@@ -61,9 +61,9 @@
 
 /* ── Results table ───────────────────────────────────────────────────────── */
 .table-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .results-table thead th {

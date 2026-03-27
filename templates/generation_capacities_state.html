@@ -3,8 +3,8 @@
 {% block title %}Generation Capacities — EIA Data Tool{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/state-generation-capacities.css') }}" />
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/state-generation-capacities.css') }}" />
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -24,35 +24,21 @@
         <label for="capacity-state" class="form-label">State</label>
         <select id="capacity-state" name="state" class="form-select">
           {% for s in states %}
-            <option value="{{ s['state'] }}" {% if s['state'] == selected_state %}selected{% endif %}>
-              {{ s['state_description'] }} ({{ s['state'] }})
-            </option>
+          <option value="{{ s['state'] }}" {% if s['state']==selected_state %}selected{% endif %}>
+            {{ s['state_description'] }} ({{ s['state'] }})
+          </option>
           {% endfor %}
         </select>
       </div>
       <div class="col-sm-3 col-md-2">
         <label for="capacity-start-year" class="form-label">From year</label>
-        <input
-          type="number"
-          id="capacity-start-year"
-          name="start_year"
-          class="form-control"
-          min="{{ min_year }}"
-          max="{{ max_year }}"
-          value="{{ start_year }}"
-        />
+        <input type="number" id="capacity-start-year" name="start_year" class="form-control" min="{{ min_year }}"
+          max="{{ max_year }}" value="{{ start_year }}" />
       </div>
       <div class="col-sm-3 col-md-2">
         <label for="capacity-end-year" class="form-label">To year</label>
-        <input
-          type="number"
-          id="capacity-end-year"
-          name="end_year"
-          class="form-control"
-          min="{{ min_year }}"
-          max="{{ max_year }}"
-          value="{{ end_year }}"
-        />
+        <input type="number" id="capacity-end-year" name="end_year" class="form-control" min="{{ min_year }}"
+          max="{{ max_year }}" value="{{ end_year }}" />
       </div>
       <div class="col-sm-2 col-md-2 d-flex gap-2">
         <button type="button" id="capacity-refresh" class="btn btn-primary w-100">Filter</button>
@@ -110,7 +96,7 @@
   window.generationCapacitiesConfig = {
     selectedState: "{{ selected_state }}",
     selectedYearStart: {{ start_year }},
-    selectedYearEnd: {{ end_year }},
+  selectedYearEnd: { { end_year } },
   };
 </script>
 <script src="{{ url_for('static', filename='js/state-generation-capacities-charts.js') }}"></script>

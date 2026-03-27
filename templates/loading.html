@@ -20,32 +20,33 @@
 <script>
   (function () {
     const errorEl = document.getElementById("startup-error");
-    const nextPath = {{ (next_path or "/") | tojson }};
+    const nextPath = {{ (next_path or "/") | tojson
+  }};
 
-    async function pollStartupStatus() {
-      try {
-        const response = await fetch("/startup-status", { cache: "no-store" });
-        if (!response.ok) return;
+  async function pollStartupStatus() {
+    try {
+      const response = await fetch("/startup-status", { cache: "no-store" });
+      if (!response.ok) return;
 
-        const status = await response.json();
-        if (status.ready) {
-          window.location.replace(nextPath);
-          return;
-        }
-
-        if (status.error) {
-          errorEl.textContent = status.error;
-          errorEl.classList.remove("d-none");
-          return;
-        }
-      } catch (err) {
-        // Keep polling on transient network errors.
+      const status = await response.json();
+      if (status.ready) {
+        window.location.replace(nextPath);
+        return;
       }
 
-      window.setTimeout(pollStartupStatus, 1500);
+      if (status.error) {
+        errorEl.textContent = status.error;
+        errorEl.classList.remove("d-none");
+        return;
+      }
+    } catch (err) {
+      // Keep polling on transient network errors.
     }
 
-    pollStartupStatus();
-  })();
+    window.setTimeout(pollStartupStatus, 1500);
+  }
+
+  pollStartupStatus();
+  }) ();
 </script>
 {% endblock %}

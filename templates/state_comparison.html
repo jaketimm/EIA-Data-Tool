@@ -3,8 +3,8 @@
 {% block title %}State Comparison — EIA Data Tool{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/state-comparison.css') }}" />
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/state-comparison.css') }}" />
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -24,7 +24,7 @@
         <label for="year" class="form-label">YEAR</label>
         <select id="year" class="form-select">
           {% for y in range(max_year, min_year - 1, -1) %}
-            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          <option value="{{ y }}" {% if y==selected_year %}selected{% endif %}>{{ y }}</option>
           {% endfor %}
         </select>
       </div>

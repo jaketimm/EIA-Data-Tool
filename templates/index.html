@@ -3,8 +3,8 @@
 {% block title %}Source &amp; Disposition — EIA Data Tool{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -28,40 +28,23 @@
         <select id="state" name="state" class="form-select">
           <option value="">— Select a state —</option>
           {% for s in states %}
-            <option
-              value="{{ s['state'] }}"
-              {% if s['state'] == selected_state %}selected{% endif %}
-            >
-              {{ s['state_description'] }} ({{ s['state'] }})
-            </option>
+          <option value="{{ s['state'] }}" {% if s['state']==selected_state %}selected{% endif %}>
+            {{ s['state_description'] }} ({{ s['state'] }})
+          </option>
           {% endfor %}
         </select>
       </div>
 
       <div class="col-sm-3 col-md-2">
         <label for="start_year" class="form-label">From year</label>
-        <input
-          type="number"
-          id="start_year"
-          name="start_year"
-          class="form-control"
-          min="{{ min_year }}"
-          max="{{ max_year }}"
-          value="{{ start_year }}"
-        />
+        <input type="number" id="start_year" name="start_year" class="form-control" min="{{ min_year }}"
+          max="{{ max_year }}" value="{{ start_year }}" />
       </div>
 
       <div class="col-sm-3 col-md-2">
         <label for="end_year" class="form-label">To year</label>
-        <input
-          type="number"
-          id="end_year"
-          name="end_year"
-          class="form-control"
-          min="{{ min_year }}"
-          max="{{ max_year }}"
-          value="{{ end_year }}"
-        />
+        <input type="number" id="end_year" name="end_year" class="form-control" min="{{ min_year }}"
+          max="{{ max_year }}" value="{{ end_year }}" />
       </div>
 
       <div class="col-sm-2 col-md-2 d-flex gap-2">
@@ -135,30 +118,30 @@
           </td>
           <td class="text-end">
             {% if row['total_net_generation'] is not none %}
-              {{ "{:,}".format(row['total_net_generation']) }}
+            {{ "{:,}".format(row['total_net_generation']) }}
             {% else %}
-              <span class="null-value">—</span>
+            <span class="null-value">—</span>
             {% endif %}
           </td>
           <td class="text-end">
             {% if row['net_interstate_trade'] is not none %}
-              {{ "{:,}".format(row['net_interstate_trade']) }}
+            {{ "{:,}".format(row['net_interstate_trade']) }}
             {% else %}
-              <span class="null-value">—</span>
+            <span class="null-value">—</span>
             {% endif %}
           </td>
           <td class="text-end">
             {% if row['total_international_exports'] is not none %}
-              {{ "{:,}".format(row['total_international_exports']) }}
+            {{ "{:,}".format(row['total_international_exports']) }}
             {% else %}
-              <span class="null-value">—</span>
+            <span class="null-value">—</span>
             {% endif %}
           </td>
           <td class="text-end">
             {% if row['total_international_imports'] is not none %}
-              {{ "{:,}".format(row['total_international_imports']) }}
+            {{ "{:,}".format(row['total_international_imports']) }}
             {% else %}
-              <span class="null-value">—</span>
+            <span class="null-value">—</span>
             {% endif %}
           </td>
         </tr>
@@ -175,7 +158,7 @@
 {% block extra_scripts %}
 {% if selected_state and chart_data %}
 <script>
-window.chartData = {{ chart_data | tojson }};
+  window.chartData = {{ chart_data | tojson }};
 </script>
 <script src="{{ url_for('static', filename='js/index-charts.js') }}"></script>
 {% endif %}
