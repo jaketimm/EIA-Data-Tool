@@ -8,7 +8,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
 
   // Color palette and category mapping to renewables, non-renewables
   const RENEWABLES = new Set(["Solar", "Wind", "Hydroelectric", "Wood", "Biomass", "Geothermal"]);
-  const NON_RENEWABLES = new Set(["Natural Gas", "Coal", "Petroleum", "Nuclear", "Pumped Storage"]);
+  const NON_RENEWABLES = new Set(["Natural Gas", "Coal", "Petroleum", "Nuclear", "Pumped Storage", "Battery", "Other"]);
 
   const CATEGORY_COLORS = {
     "Coal": "#4a4a4a",
@@ -126,16 +126,59 @@ if (!yearSelect || typeof Plotly === "undefined") {
       hovertemplate: "<b>%{label}</b><br>%{value:,.0f} MW<br>%{percent}<extra></extra>",
     }], { ...pieLayout(), height: 380 }, plotCfg);
 
-    // Non-renewables pie chart
-    Plotly.newPlot("national-nonrenewables-chart", [{
-      labels: nonRenewables.map(s => s.label),
-      values: nonRenewables.map(s => s.total),
-      type: "pie",
-      hole: 0.4,
-      textinfo: "none",
-      marker: { colors: nonRenewables.map(s => CATEGORY_COLORS[s.label] ?? "#999") },
-      hovertemplate: "<b>%{label}</b><br>%{value:,.0f} MW<br>%{percent}<extra></extra>",
-    }], { ...pieLayout(), height: 380 }, plotCfg);
+    renderStatCards(data)
+    renderTable(data)
+  }
+
+  // HTML table of raw data below the chart
+  function renderTable(data) {
+    const tbody = document.getElementById("capacity-table-body");
+    if (!tbody) return;
+
+    if (!data?.sources?.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data available.</td></tr>`;
+      return;
+    }
+
+    const totalMW = data.sources.reduce((sum, s) => sum + s.total, 0);
+
+    const rows = data.sources
+      .slice()
+      .sort((a, b) => b.total - a.total)
+      .map(s => {
+        const pct = totalMW > 0 ? ((s.total / totalMW) * 100).toFixed(1) : "0.0";
+        return `<tr>
+        <td>${s.label}</td>
+        <td class="text-end">${s.total.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
+        <td class="text-end">${pct}%</td>
+      </tr>`;
+      }).join("");
+
+    tbody.innerHTML = rows;
+
+    const thead = document.querySelector("#capacity-table thead tr");
+    if (thead) {
+      thead.innerHTML = `<th>Source</th><th class="text-end">Capacity (MW)</th><th class="text-end">Share</th>`;
+    }
+  }
+
+  // Summary cards above the charts showing total capacity and % renewable/non-renewable
+  function renderStatCards(data) {
+    const totalMW = data.sources.reduce((sum, s) => sum + s.total, 0);
+    const renewableMW = data.sources
+      .filter(s => RENEWABLES.has(s.label))
+      .reduce((sum, s) => sum + s.total, 0);
+    const nonRenewableMW = data.sources
+      .filter(s => NON_RENEWABLES.has(s.label))
+      .reduce((sum, s) => sum + s.total, 0);
+
+    const renewablePct = ((renewableMW / totalMW) * 100).toFixed(1);
+    const nonRenewablePct = ((nonRenewableMW / totalMW) * 100).toFixed(1);
+    const totalFormatted = (totalMW / 1_000_000).toFixed(2) + "M MW";
+
+    document.getElementById("stat-total-mw").textContent = totalFormatted;
+    document.getElementById("stat-renewable-pct").textContent = renewablePct + "%";
+    document.getElementById("stat-nonrenewable-pct").textContent = nonRenewablePct + "%";
   }
 
   async function refresh() {

@@ -43,12 +43,12 @@
               aria-expanded="false">Generation Capacities</a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="generationCapacitiesDropdown">
               <li>
-                <a class="dropdown-item {% if request.path == '/generation-capacities' %}active{% endif %}"
-                  href="{{ url_for('generation_capacities') }}">State View</a>
-              </li>
-              <li>
                 <a class="dropdown-item {% if request.path == '/generation-capacities-national' %}active{% endif %}"
                   href="{{ url_for('generation_capacities_national') }}">National Overview</a>
+              </li>
+              <li>
+                <a class="dropdown-item {% if request.path == '/generation-capacities' %}active{% endif %}"
+                  href="{{ url_for('generation_capacities') }}">State View</a>
               </li>
             </ul>
           </li>

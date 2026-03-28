@@ -3,8 +3,8 @@
 {% block title %}National Generation Overview — EIA Data Tool{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/national-generation-capacities.css') }}" />
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/national-generation-capacities.css') }}" />
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -24,7 +24,7 @@
         <label for="national-year" class="form-label">Year</label>
         <select id="national-year" class="form-select">
           {% for y in range(max_year, min_year - 1, -1) %}
-            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          <option value="{{ y }}" {% if y==selected_year %}selected{% endif %}>{{ y }}</option>
           {% endfor %}
         </select>
       </div>
@@ -34,30 +34,67 @@
 
 <div id="national-error" class="alert alert-danger d-none" role="alert"></div>
 
-<div class="row chart-row justify-content-center">
-  <div class="col-lg-6">
-    <div class="chart-card">
-      <p class="chart-title text-center">Total Capacity by Source</p>
-      <p class="chart-subtitle text-center">Installed generation capacity across all 50 states.</p>
-      <div id="national-total-chart" class="chart-container"></div>
-    </div>
+<div class="stat-cards">
+  <div class="stat-card">
+    <div class="stat-label">Total Installed Capacity</div>
+    <div class="stat-value" id="stat-total-mw">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Renewable Share</div>
+    <div class="stat-value" id="stat-renewable-pct">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Non-Renewable Share</div>
+    <div class="stat-value" id="stat-nonrenewable-pct">—</div>
   </div>
 </div>
 
 <div class="row chart-row">
   <div class="col-lg-6">
     <div class="chart-card">
-      <p class="chart-title text-center">Renewable Sources</p>
-      <p class="chart-subtitle text-center">Wind, solar, hydro, and other renewables.</p>
-      <div id="national-renewables-chart" class="chart-container"></div>
+      <p class="chart-title text-center">Total Capacity by Source</p>
+      <p class="chart-subtitle text-center">Generation capacity across all 50 states.</p>
+      <div id="national-total-chart" class="chart-container"></div>
     </div>
   </div>
   <div class="col-lg-6">
     <div class="chart-card">
-      <p class="chart-title text-center">Non-Renewable Sources</p>
-      <p class="chart-subtitle text-center">Natural gas, coal, petroleum, and nuclear.</p>
-      <div id="national-nonrenewables-chart" class="chart-container"></div>
+      <p class="chart-title text-center">Renewable Sources</p>
+      <p class="chart-subtitle text-center">Each source's share of total renewable capacity.</p>
+      <div id="national-renewables-chart" class="chart-container"></div>
     </div>
+  </div>
+</div>
+
+<div class="page-header row mb-3 text-center">
+  <div class="col">
+    <h2 class="mb-0">Total Capacities Chart Data</h2>
+  </div>
+</div>
+
+<!-- ── Table ────────────────────────────────────────────────────────────────── -->
+<div class="table-container">
+  <div class="table-responsive d-inline-block">
+    <table class="table table-striped table-hover table-bordered results-table" id="capacity-table">
+      <thead class="table-dark">
+        <tr>
+          <th>Year</th>
+          <th>State</th>
+          <th class="text-end">Energy Source</th>
+          <th class="text-end">
+            <abbr title="Installed generation capacity in megawatts.">
+              Capability
+            </abbr>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="capacity-table-body">
+        <tr>
+          <td colspan="4" class="text-center text-muted">Loading...</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="text-muted small mt-1">All readings are in MW</p>
   </div>
 </div>
 

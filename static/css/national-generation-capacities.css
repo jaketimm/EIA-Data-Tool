@@ -54,8 +54,26 @@
 
 .chart-card .chart-container {
   width: 100%;
+  min-height: 425px;
 }
 
+.stat-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+}
+
+.stat-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-left: 3px solid #89b4d4;
+}
 
 /* ── Results table ───────────────────────────────────────────────────────── */
 .table-container {
