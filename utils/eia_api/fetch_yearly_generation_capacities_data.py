@@ -142,6 +142,7 @@ def fetch_eia_capacities_data() -> None:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         raise RuntimeError("EIA_API_KEY is not set.")
 
+    # If the cached JSON is fresh, check if the DB table exists and has data. If not, rebuild from the cached JSON.
     if data_is_fresh(JSON_FILE):
         if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_generation_capacities"):
             logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")
@@ -158,8 +159,8 @@ def fetch_eia_capacities_data() -> None:
     if not records:
         logger.info("No records returned — double-check your API key and date range.")
         raise ValueError("EIA API returned no records.")
-    
-
+ 
+    # Validate schema before saving or inserting data into DB
     data_is_valid = detect_schema_drift(EXPECTED_FIELDS, records)
 
     if data_is_valid:

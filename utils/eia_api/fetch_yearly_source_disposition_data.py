@@ -160,7 +160,7 @@ def fetch_eia_source_data() -> None:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         raise RuntimeError("EIA_API_KEY is not set.")
 
-    # Recreate DB if it was deleted or is missing
+    # If the cached JSON is fresh, check if the DB tables exist and have data. If not, rebuild from the cached JSON.
     if data_is_fresh(JSON_FILE):
         records = None
 
@@ -186,6 +186,7 @@ def fetch_eia_source_data() -> None:
         logger.info("No records returned — double-check your API key and date range.")
         raise ValueError("EIA API returned no records.")
     
+    # Validate schema before saving or inserting data into DB
     data_is_valid = detect_schema_drift(EXPECTED_FIELDS, records)
 
     if data_is_valid:

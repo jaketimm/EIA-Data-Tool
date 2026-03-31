@@ -119,7 +119,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
 
   // Call Flask route to query DB and update data
   async function fetchComparisonData(year) {
-    const response = await fetch(`/api/state-comparison-data?year=${encodeURIComponent(year)}`, {
+    const response = await fetch(`/api/state-comparison?year=${encodeURIComponent(year)}`, {
       cache: "no-store",
     });
 
@@ -263,9 +263,10 @@ if (!yearSelect || typeof Plotly === "undefined") {
     }
 
     // Build a lookup by state code
-    const importMap = Object.fromEntries(data.import_states.map((s, i) => [s, data.total_imports[i]]));
-    const exportMap = Object.fromEntries(data.export_states.map((s, i) => [s, data.total_exports[i]]));
+    const importMap = Object.fromEntries(data.import_states.map((source, i) => [source, data.total_imports[i]]));
+    const exportMap = Object.fromEntries(data.export_states.map((source, i) => [source, data.total_exports[i]]));
 
+    // Generate table rows showing state, generation, imports, and exports
     const rows = data.generation_states.map((state, i) => {
       const gen = data.total_generation[i];
       const imp = importMap[state] ?? 0;

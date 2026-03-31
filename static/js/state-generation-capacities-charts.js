@@ -131,7 +131,7 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
       end_year: String(endYear),
     });
 
-    const response = await fetch(`/api/generation-capacities-data?${params.toString()}`, {
+    const response = await fetch(`/api/generation-capacities/state?${params.toString()}`, {
       cache: "no-store",
     });
 
@@ -204,7 +204,7 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
     }
 
     const rows = [];
-    // flip the order of the years for the table only
+    // create table rows showing year, state, and capacity by source
     [...data.years].reverse().forEach((year, i) => {
       const yearIndex = data.years.indexOf(year);
       const cells = data.sources.map(source => {
@@ -218,7 +218,7 @@ if (!stateSelect || !startYearInput || !endYearInput || !chartEl || typeof Plotl
 
     const thead = document.querySelector("#capacity-table thead tr");
     if (thead) {
-      const sourceCols = data.sources.map(s => `<th class="text-end">${s.label}</th>`).join("");
+      const sourceCols = data.sources.map(source => `<th class="text-end">${source.label}</th>`).join("");
       thead.innerHTML = `<th>Year</th><th>State</th>${sourceCols}`;
     }
 

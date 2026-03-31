@@ -9,12 +9,11 @@
 
 {% block content %}
 
-<!-- ── Page header ─────────────────────────────────────────────────────────── -->
 <div class="page-header row mb-3">
   <div class="col">
     <h2 class="mb-0">State Electricity — Source &amp; Disposition</h2>
     <p class="text-muted mt-1 mb-0">
-      View a single state's net generation, imports, and exports for a single year. Values in megawatthours (MWh).
+      View a single state's net generation, imports, and exports. Values in megawatthours (MWh).
     </p>
   </div>
 </div>
@@ -55,7 +54,7 @@
   </div>
 </div>
 
-<!-- ── State prompt ────────────────────────────────────────────────────────── -->
+
 {% if not selected_state %}
 <div class="state-prompt">
   <p>Select a state above to view charts and data.</p>
@@ -63,7 +62,7 @@
 
 {% else %}
 
-<!-- ── Row 1 — Line charts ─────────────────────────────────────────────────── -->
+<!-- ── Line charts ─────────────────────────────────────────────────────────── -->
 <div class="row chart-row">
   <div class="col-lg-6 mb-3 mb-lg-0">
     <div class="chart-card">
@@ -85,13 +84,13 @@
   </div>
 </div>
 
+<!-- ── Table ────────────────────────────────────────────────────────────────── -->
 <div class="page-header row mb-3 text-center">
   <div class="col">
     <h2 class="mb-0">Chart Data</h2>
   </div>
 </div>
 
-<!-- ── Table ────────────────────────────────────────────────────────────────── -->
 <div class="table-container">
   <div class="table-responsive d-inline-block">
     <table class="table table-striped table-hover table-bordered results-table">

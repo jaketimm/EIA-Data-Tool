@@ -12,11 +12,12 @@
   <div class="col">
     <h2 class="mb-0">State Generation Capacities</h2>
     <p class="text-muted mt-1 mb-0">
-      View one state's total generation over time, stacked by energy source. Values in MW.
+      View one state's total generation capacities over time, stacked by energy source. Values in MW.
     </p>
   </div>
 </div>
 
+<!-- ── Filter Controls ────────────────────────────────────────────────────────── -->
 <div class="card filter-card mb-4">
   <div class="card-body">
     <form id="capacity-filters" class="row g-3 align-items-end" autocomplete="off">
@@ -42,7 +43,7 @@
       </div>
       <div class="col-sm-2 col-md-2 d-flex gap-2">
         <button type="button" id="capacity-refresh" class="btn btn-primary w-100">Filter</button>
-        <a href="/generation-capacities" class="btn btn-outline-secondary w-100">Reset</a>
+        <a href="/generation-capacities-state" class="btn btn-outline-secondary w-100">Reset</a>
       </div>
     </form>
   </div>
@@ -50,6 +51,7 @@
 
 <div id="capacity-error" class="alert alert-danger d-none" role="alert"></div>
 
+<!-- ── Chart ────────────────────────────────────────────────────────────────── -->
 <div class="chart-card">
   <p class="chart-title">Net Generation by Source</p>
   <p class="chart-subtitle">
@@ -58,13 +60,13 @@
   <div id="generation-capacities-chart" class="chart-container"></div>
 </div>
 
+<!-- ── Table ────────────────────────────────────────────────────────────────── -->
 <div class="page-header row mb-3 text-center">
   <div class="col">
     <h2 class="mb-0">Chart Data</h2>
   </div>
 </div>
 
-<!-- ── Table ────────────────────────────────────────────────────────────────── -->
 <div class="table-container">
   <div class="table-responsive d-inline-block">
     <table class="table table-striped table-hover table-bordered results-table" id="capacity-table">

@@ -76,7 +76,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
 
   // Fetch data for the selected year when the dropdown changes
   async function fetchData(year) {
-    const response = await fetch(`/generation-capacities-national-data?year=${year}`, {
+    const response = await fetch(`/api/generation-capacities/national?year=${year}`, {
       cache: "no-store",
     });
 
@@ -98,12 +98,11 @@ if (!yearSelect || typeof Plotly === "undefined") {
       return;
     }
 
-    const renewables = data.sources.filter(s => RENEWABLES.has(s.label));
-    const nonRenewables = data.sources.filter(s => NON_RENEWABLES.has(s.label));
+    const renewables = data.sources.filter(source => RENEWABLES.has(source.label));
 
-    // Top-level national pie chart
-    const totalLabels = data.sources.map(s => s.label);
-    const totalValues = data.sources.map(s => s.total);
+    // National pie chart
+    const totalLabels = data.sources.map(source => source.label);
+    const totalValues = data.sources.map(source => source.total);
 
     Plotly.newPlot("national-total-chart", [{
       labels: totalLabels,
@@ -111,18 +110,18 @@ if (!yearSelect || typeof Plotly === "undefined") {
       type: "pie",
       hole: 0.4,
       textinfo: "none",
-      marker: { colors: totalLabels.map(l => CATEGORY_COLORS[l] ?? "#999") },
+      marker: { colors: totalLabels.map(label => CATEGORY_COLORS[label] ?? "#999") },
       hovertemplate: "<b>%{label}</b><br>%{value:,.0f} MW<br>%{percent}<extra></extra>",
     }], { ...pieLayout(), height: 420 }, plotCfg);
 
     // Renewables pie chart
     Plotly.newPlot("national-renewables-chart", [{
-      labels: renewables.map(s => s.label),
-      values: renewables.map(s => s.total),
+      labels: renewables.map(source => source.label),
+      values: renewables.map(source => source.total),
       type: "pie",
       hole: 0.4,
       textinfo: "none",
-      marker: { colors: renewables.map(s => CATEGORY_COLORS[s.label] ?? "#999") },
+      marker: { colors: renewables.map(source => CATEGORY_COLORS[source.label] ?? "#999") },
       hovertemplate: "<b>%{label}</b><br>%{value:,.0f} MW<br>%{percent}<extra></extra>",
     }], { ...pieLayout(), height: 380 }, plotCfg);
 
@@ -140,16 +139,17 @@ if (!yearSelect || typeof Plotly === "undefined") {
       return;
     }
 
-    const totalMW = data.sources.reduce((sum, s) => sum + s.total, 0);
+    const totalMW = data.sources.reduce((sum, source) => sum + source.total, 0);
 
+    // Generate table rows showing source, capacity, and % share of total
     const rows = data.sources
       .slice()
-      .sort((a, b) => b.total - a.total)
-      .map(s => {
-        const pct = totalMW > 0 ? ((s.total / totalMW) * 100).toFixed(1) : "0.0";
+      .sort((a, b) => b.total - a.total) // sort descending by capacity
+      .map(source => {
+        const pct = totalMW > 0 ? ((source.total / totalMW) * 100).toFixed(1) : "0.0";
         return `<tr>
-        <td>${s.label}</td>
-        <td class="text-end">${s.total.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
+        <td>${source.label}</td>
+        <td class="text-end">${source.total.toLocaleString("en-US", { maximumFractionDigits: 1 })}</td>
         <td class="text-end">${pct}%</td>
       </tr>`;
       }).join("");
@@ -164,14 +164,15 @@ if (!yearSelect || typeof Plotly === "undefined") {
 
   // Summary cards above the charts showing total capacity and % renewable/non-renewable
   function renderStatCards(data) {
-    const totalMW = data.sources.reduce((sum, s) => sum + s.total, 0);
-    const renewableMW = data.sources
-      .filter(s => RENEWABLES.has(s.label))
-      .reduce((sum, s) => sum + s.total, 0);
-    const nonRenewableMW = data.sources
-      .filter(s => NON_RENEWABLES.has(s.label))
-      .reduce((sum, s) => sum + s.total, 0);
+    const totalMW = data.sources.reduce((sum, source) => sum + source.total, 0);
+    const renewableMW = data.sources  // sum renwable sources
+      .filter(source => RENEWABLES.has(source.label))
+      .reduce((sum, source) => sum + source.total, 0);
+    const nonRenewableMW = data.sources  // sum non-renwable sources
+      .filter(source => NON_RENEWABLES.has(source.label))
+      .reduce((sum, source) => sum + source.total, 0);
 
+    // Calculate percentages and insert into stat cards
     const renewablePct = ((renewableMW / totalMW) * 100).toFixed(1);
     const nonRenewablePct = ((nonRenewableMW / totalMW) * 100).toFixed(1);
     const totalFormatted = (totalMW / 1_000_000).toFixed(2) + "M MW";

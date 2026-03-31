@@ -86,6 +86,7 @@ def _get_startup_state() -> tuple[str, str | None]:
 
 @app.route("/")
 def index():
+    """Main page showing yearly source disposition data with filters for state and year range."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -142,6 +143,7 @@ def index():
 
 @app.route("/state-comparison")
 def state_comparison():
+    """Page showing comparison of net generation, imports, and exports across states for a given year. Includes a dropdown to select the year."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -172,8 +174,9 @@ def state_comparison():
     )
 
 
-@app.route("/api/state-comparison-data")
+@app.route("/api/state-comparison")
 def state_comparison_data():
+    """API endpoint to fetch data for the state comparison charts for a given year."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
     if startup_status != "ready":
@@ -213,6 +216,7 @@ def state_comparison_data():
 
 @app.route("/generation-capacities-state")
 def generation_capacities():
+    """Page showing generation capacities by source for a given state and year range, with filters to select the state and years."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -270,8 +274,9 @@ def generation_capacities():
     )
 
 
-@app.route("/api/generation-capacities-data")
+@app.route("/api/generation-capacities/state")
 def generation_capacities_data():
+    """API endpoint to fetch generation capacities data for a given state and year range."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -339,6 +344,7 @@ def generation_capacities_data():
 
 @app.route("/generation-capacities-national")
 def generation_capacities_national():
+    """Page showing national generation capacities by source for a given year. Includes a dropdown to select the year."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -371,8 +377,9 @@ def generation_capacities_national():
     )
 
 
-@app.route("/generation-capacities-national-data")
+@app.route("/api/generation-capacities/national")
 def generation_capacities_national_api():
+    """API endpoint to fetch national generation capacities data for a given year."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -412,6 +419,7 @@ def generation_capacities_national_api():
 
 @app.route("/startup-status")
 def startup_status():
+    """Endpoint to check the status of the initial data fetch on app startup."""
     _ensure_startup_fetch_started()
     status, error = _get_startup_state()
     return {"status": status, "ready": status == "ready", "error": error}
