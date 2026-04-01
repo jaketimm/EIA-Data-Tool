@@ -14,6 +14,7 @@ from pathlib import Path
 
 from db.connection import get_connection
 from utils.logger import get_logger
+from utils.eia_api.year_validator import validate_period
 logger = get_logger(__name__)
 
 DB_PATH = Path(__file__).resolve().parent.parent / "db" / "eia.db"
@@ -54,6 +55,16 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
             )
         """)
 
+        # Validate periods before processing
+        valid_records = []
+        for r in records:
+            try:
+                validate_period(r["period"])
+                valid_records.append(r)
+            except ValueError as e:
+                logger.error("Skipping record with invalid period: %s", e)
+                continue
+
         rows = [
             (
                 int(r["period"]),
@@ -64,7 +75,7 @@ def insert_yearly_source_disposition(records: list[dict]) -> int:
                 _to_int(r.get("total-international-imports")),
                 _to_int(r.get("total-net-generation")),
             )
-            for r in records
+            for r in valid_records
         ]
 
         # Only add rows with a new PRIMARY KEY (period, state)
@@ -125,6 +136,16 @@ def insert_yearly_consumption(records: list[dict]) -> int:
             )
         """)
 
+        # Validate periods before processing
+        valid_records = []
+        for r in records:
+            try:
+                validate_period(r["period"])
+                valid_records.append(r)
+            except ValueError as e:
+                logger.error("Skipping record with invalid period: %s", e)
+                continue
+
         rows = [
             (
                 int(r["period"]),
@@ -135,7 +156,7 @@ def insert_yearly_consumption(records: list[dict]) -> int:
                 _to_int(r.get("direct-use")),
                 _to_int(r.get("unaccounted")),
             )
-            for r in records
+            for r in valid_records
         ]
 
         # Only add rows with a new PRIMARY KEY (period, state)

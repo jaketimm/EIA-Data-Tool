@@ -44,12 +44,14 @@ SKIP_FETCH = False
 def _run_startup_fetch() -> None:
     global _startup_status, _startup_error
 
+    # If SKIP_FETCH is True, use the existing database and mark startup as ready.
     if SKIP_FETCH:
         logger.info("SKIP_FETCH enabled — using existing database.")
         with _startup_lock:
             _startup_status = "ready"
         return
     
+    # If SKIP_FETCH is False, fetch fresh data (if stale)
     logger.info("Fetching fresh data from EIA APIs.")
     try:
         fetch_eia_source_data()
@@ -105,16 +107,8 @@ def index():
     min_year, max_year = get_yearly_source_disposition_year_range()
 
     selected_state = request.args.get("state", states[0]["state"] if states else "")
-    try:
-        start_year = int(request.args.get("start_year", min_year))
-        end_year = int(request.args.get("end_year", max_year))
-    except ValueError:
-        logger.info(
-            "Invalid year range params — falling back to full range (%s–%s).",
-            min_year,
-            max_year,
-        )
-        start_year, end_year = min_year, max_year
+    start_year = int(request.args.get("start_year", min_year))
+    end_year = int(request.args.get("end_year", max_year))
 
     rows = (
         get_yearly_source_disposition(
@@ -159,12 +153,7 @@ def state_comparison():
         )
 
     min_year, max_year = get_yearly_source_disposition_year_range()
-    try:
-        selected_year = int(request.args.get("year", max_year))
-    except ValueError:
-        selected_year = max_year
-
-    selected_year = max(min_year, min(max_year, selected_year))
+    selected_year = int(request.args.get("year", max_year))
 
     return render_template(
         "state_comparison.html",
@@ -191,6 +180,7 @@ def state_comparison_data():
             503,
         )
 
+    # API can be called directly, so validate input; routes use UI-constrained selector.
     min_year, max_year = get_yearly_source_disposition_year_range()
     year_raw = request.args.get("year")
     if year_raw is None:
@@ -200,14 +190,6 @@ def state_comparison_data():
             year = int(year_raw)
         except ValueError:
             return jsonify({"error": "Invalid year parameter."}), 400
-
-    if year < min_year or year > max_year:
-        return (
-            jsonify(
-                {"error": f"Year must be between {min_year} and {max_year}."}
-            ),
-            400,
-        )
 
     rows = get_yearly_state_comparison(year)
     chart_data = build_state_comparison_chart_data(rows, year)
@@ -246,19 +228,8 @@ def generation_capacities():
 
     min_year, max_year = get_generation_capacities_year_range()
 
-    def _clamp_year(value: int | None) -> int:
-        if value is None:
-            return max_year
-        return max(min_year, min(max_year, value))
-
-    try:
-        start_year = _clamp_year(int(request.args.get("start_year", min_year)))
-    except ValueError:
-        start_year = min_year
-    try:
-        end_year = _clamp_year(int(request.args.get("end_year", max_year)))
-    except ValueError:
-        end_year = max_year
+    start_year = int(request.args.get("start_year", min_year))
+    end_year = int(request.args.get("end_year", max_year))
 
     if start_year > end_year:
         start_year, end_year = end_year, start_year
@@ -296,6 +267,7 @@ def generation_capacities_data():
     if not states:
         return jsonify({"error": "No generation capacity data is available."}), 404
 
+    # API can be called directly, so validate inputs; routes use UI-constrained selectors.
     selected_state = request.args.get("state")
     if not selected_state:
         selected_state = states[0]["state"]
@@ -303,25 +275,14 @@ def generation_capacities_data():
 
     min_year, max_year = get_generation_capacities_year_range(selected_state)
 
-    def _parse_year(raw, fallback):
-        if raw is None:
-            return fallback
-        try:
-            return int(raw)
-        except ValueError:
-            raise
-
     try:
-        start_year = _parse_year(request.args.get("start_year"), min_year)
+        start_year = int(request.args.get("start_year") or min_year)
     except ValueError:
         return jsonify({"error": "Invalid start_year parameter."}), 400
     try:
-        end_year = _parse_year(request.args.get("end_year"), max_year)
+        end_year = int(request.args.get("end_year") or max_year)
     except ValueError:
         return jsonify({"error": "Invalid end_year parameter."}), 400
-
-    start_year = max(min_year, min(max_year, start_year))
-    end_year = max(min_year, min(max_year, end_year))
 
     if start_year > end_year:
         start_year, end_year = end_year, start_year
@@ -360,13 +321,9 @@ def generation_capacities_national():
         )
 
     min_year, max_year = get_generation_capacities_year_range()
-    try:
-        selected_year = int(request.args.get("year", max_year))
-    except ValueError:
-        selected_year = max_year
+    selected_year = int(request.args.get("year", max_year))
 
     rows = get_generation_capacities_national(selected_year)
-    print(app.url_map)
 
     return render_template(
         "generation_capacities_national.html",
@@ -395,6 +352,7 @@ def generation_capacities_national_api():
 
     min_year, max_year = get_generation_capacities_year_range()
 
+    # API can be called directly, so validate input; routes use UI-constrained selector.
     year_raw = request.args.get("year")
     if year_raw is None:
         year = max_year
@@ -403,11 +361,6 @@ def generation_capacities_national_api():
             year = int(year_raw)
         except ValueError:
             return jsonify({"error": "Invalid year parameter."}), 400
-
-    if year < min_year or year > max_year:
-        return jsonify({
-            "error": f"Year must be between {min_year} and {max_year}."
-        }), 400
 
     rows = get_generation_capacities_national(year)
 

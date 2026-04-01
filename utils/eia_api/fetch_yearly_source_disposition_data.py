@@ -21,6 +21,7 @@ from db.connection import table_exists
 from utils.file_utils import data_is_fresh, load_json_cache, save_json_cache
 from utils.logger import get_logger
 from utils.eia_api.validator import detect_schema_drift
+from utils.eia_api.year_validator import validate_period
 
 logger = get_logger(__name__)
 
@@ -149,6 +150,14 @@ def fetch_all_records() -> list[dict]:
             break
 
         offset += BATCH_SIZE
+
+    # Validate periods before returning
+    for record in all_records:
+        try:
+            validate_period(record["period"])
+        except ValueError as e:
+            logger.error("Invalid period in API record: %s", e)
+            raise ValueError(f"API returned invalid period data: {e}")
 
     return all_records
 

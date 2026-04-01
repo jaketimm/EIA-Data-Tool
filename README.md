@@ -68,6 +68,7 @@ EIA-Data-Tool/
 │   └── eia_api/
 │       ├── fetch_yearly_generation_capacities_data.py
 │       ├── fetch_yearly_source_disposition_data.py
+│       ├── year_validator.py
 │       └── validator.py
 ├── db/
 │   ├── __init__.py
