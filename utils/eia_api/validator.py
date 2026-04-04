@@ -1,17 +1,21 @@
+"""
+Module for validating EIA API data, checks that all expected JSON fields are present.
+"""
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def detect_schema_drift(EXPECTED_FIELDS, records: list[dict]) -> bool:
+def detect_schema_drift(expected_fields: set, records: list[dict]) -> bool:
     """Check the data schema. Return True if the data passes the schema check"""
     if not records:
         return False
 
     record_keys = set(records[0].keys())
 
-    missing = EXPECTED_FIELDS - record_keys
-    extra = record_keys - EXPECTED_FIELDS
+    missing = expected_fields - record_keys
+    extra = record_keys - expected_fields
 
     if missing or extra:
         logger.warning(

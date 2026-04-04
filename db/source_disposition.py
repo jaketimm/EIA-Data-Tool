@@ -297,3 +297,4 @@ def get_yearly_state_comparison(period: int) -> list[sqlite3.Row]:
     except Exception as exc:
         logger.error("Unexpected error in get_yearly_state_comparison: %s", exc)
         raise
+

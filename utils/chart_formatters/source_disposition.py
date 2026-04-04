@@ -1,3 +1,8 @@
+"""
+Formatters for source disposition data. Aggregates exports and imports data 
+and transforms raw data rows into structured datasets for charting.
+"""
+
 def build_yearly_source_disposition_chart_data(rows) -> dict:
     """
     Transform DB rows into parallel lists for Plotly.

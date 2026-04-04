@@ -1,3 +1,8 @@
+"""
+Formatters for generation capacity data. Combines energy subcategories into broader categories for easier visualization, 
+and transforms raw data rows into structured datasets for charting.
+"""
+
 # Combine the generation data subcategories
 CATEGORY_MAP = {
     "Natural Gas - CC": "Natural Gas",

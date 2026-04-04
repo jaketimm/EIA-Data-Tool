@@ -1,4 +1,5 @@
 """
+This module provides functions for connecting to the SQLite database and checking for the existence of tables.
 get_connection()   
 table_exists(table_name)
 """

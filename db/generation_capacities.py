@@ -265,3 +265,4 @@ def get_generation_capacities_national(year: int) -> list[sqlite3.Row]:
     except Exception as exc:
         logger.error("Unexpected error in get_generation_capacities_national: %s", exc)
         raise
+    

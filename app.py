@@ -1,6 +1,5 @@
-from flask import Flask, jsonify, render_template, Response, request
-import csv, io
 import threading
+from flask import Flask, jsonify, render_template, request
 
 from db.source_disposition import(
     get_yearly_source_disposition,
@@ -16,10 +15,11 @@ from db.generation_capacities import(
 
 from utils.eia_api.fetch_yearly_source_disposition_data import fetch_eia_source_data
 from utils.eia_api.fetch_yearly_generation_capacities_data import fetch_eia_capacities_data
-from utils.chart_formatters.source_disposition import (
+
+from utils.chart_formatters.source_disposition import(
     build_state_comparison_chart_data,
-    build_yearly_source_disposition_chart_data
-)
+    build_yearly_source_disposition_chart_data)
+
 from utils.chart_formatters.generation_capacities import (
     build_state_capacities_chart_data,
     build_national_capacities_chart_data)
@@ -50,7 +50,7 @@ def _run_startup_fetch() -> None:
         with _startup_lock:
             _startup_status = "ready"
         return
-    
+        
     # If SKIP_FETCH is False, fetch fresh data (if stale)
     logger.info("Fetching fresh data from EIA APIs.")
     try:
@@ -137,7 +137,8 @@ def index():
 
 @app.route("/state-comparison")
 def state_comparison():
-    """Page showing comparison of net generation, imports, and exports across states for a given year. Includes a dropdown to select the year."""
+    """Page showing comparison of net generation, imports, and exports across states for a given year. 
+    Includes a dropdown to select the year."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -198,7 +199,8 @@ def state_comparison_data():
 
 @app.route("/generation-capacities-state")
 def generation_capacities():
-    """Page showing generation capacities by source for a given state and year range, with filters to select the state and years."""
+    """Page showing generation capacities by source for a given state and year range.
+   Includes filters to select the state and years."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 
@@ -305,7 +307,8 @@ def generation_capacities_data():
 
 @app.route("/generation-capacities-national")
 def generation_capacities_national():
-    """Page showing national generation capacities by source for a given year. Includes a dropdown to select the year."""
+    """Page showing national generation capacities by source for a given year. 
+    Includes a dropdown to select the year."""
     _ensure_startup_fetch_started()
     startup_status, startup_error = _get_startup_state()
 

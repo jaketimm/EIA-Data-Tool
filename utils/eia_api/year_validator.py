@@ -1,3 +1,8 @@
+"""
+Utility functions for validating year and period formats in EIA API data.
+Expects year strings to be 4-digit strings (e.g., "2020").
+"""
+
 def validate_year_format(year_str: str) -> bool:
     """Validate that year_str is a 4-digit string representing a year."""
     return isinstance(year_str, str) and year_str.isdigit() and len(year_str) == 4

@@ -72,7 +72,8 @@ def build_params(offset: int = 0) -> dict:
         "sort[0][direction]": "desc",
         "offset": offset,
         "length": BATCH_SIZE,
-        "facets[producertypeid][]": "TOT",  # filter to totals only (sum for all sectors, not broken down into utilities, independent producers)
+        # filter to totals only (sum for all sectors, not broken down into utilities, independent producers)
+        "facets[producertypeid][]": "TOT",  
     }
     for i, field in enumerate(FIELDS):
         params[f"data[{i}]"] = field
@@ -139,19 +140,21 @@ def fetch_all_records() -> list[dict]:
             validate_period(record["period"])
         except ValueError as e:
             logger.error("Invalid period in API record: %s", e)
-            raise ValueError(f"API returned invalid period data: {e}")
+            raise ValueError(f"API returned invalid period data: {e}") from e
 
     return all_records
 
 
 # Main Process
 def fetch_eia_capacities_data() -> None:
+    """Fetch yearly generation capacities data from the EIA API."""
 
     if not API_KEY:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")
         raise RuntimeError("EIA_API_KEY is not set.")
 
-    # If the cached JSON is fresh, check if the DB table exists and has data. If not, rebuild from the cached JSON.
+    # If the cached JSON is fresh, check if the DB table exists and has data. 
+    # If not, rebuild from the cached JSON.
     if data_is_fresh(JSON_FILE):
         if not (DB_DIR / "eia.db").exists() or not table_exists("yearly_generation_capacities"):
             logger.warning("Data is fresh but table or DB is missing — rebuilding from cached JSON.")

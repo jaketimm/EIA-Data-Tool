@@ -157,13 +157,14 @@ def fetch_all_records() -> list[dict]:
             validate_period(record["period"])
         except ValueError as e:
             logger.error("Invalid period in API record: %s", e)
-            raise ValueError(f"API returned invalid period data: {e}")
+            raise ValueError(f"API returned invalid period data: {e}") from e
 
     return all_records
 
 
 # Main Process
 def fetch_eia_source_data() -> None:
+    """Fetch yearly generation source disposition data from the EIA API."""
 
     if not API_KEY:
         logger.error("EIA_API_KEY is not set. Add it to your .env file.")

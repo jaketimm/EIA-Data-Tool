@@ -1,3 +1,8 @@
+"""
+Utility functions for loading and saving JSON cache files.
+Includes function to check if cached data is fresh based on a timestamp and age threshold.
+"""
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,7 +20,7 @@ def data_is_fresh(json_file: Path, max_age_days: int = MAX_AGE_DAYS) -> bool:
         return False
 
     try:
-        with open(json_file) as f:
+        with open(json_file, encoding="utf-8") as f:
             meta = json.load(f)
         fetched_at = datetime.fromisoformat(meta["fetched_at"])
         age = datetime.now(timezone.utc) - fetched_at
@@ -38,7 +43,7 @@ def data_is_fresh(json_file: Path, max_age_days: int = MAX_AGE_DAYS) -> bool:
 def load_json_cache(json_file: Path) -> list[dict]:
     """Load and return records from the JSON cache file."""
     try:
-        with open(json_file) as f:
+        with open(json_file, encoding="utf-8") as f:
             return json.load(f)["records"]
     except FileNotFoundError as exc:
         logger.error("JSON cache file not found: %s", exc)
@@ -65,7 +70,7 @@ def save_json_cache(
     }
 
     try:
-        with open(json_file, "w") as f:
+        with open(json_file, encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
     except FileNotFoundError as exc:
         logger.error("Could not find path when saving JSON cache: %s", exc)
