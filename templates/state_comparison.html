@@ -10,9 +10,9 @@
 {% block content %}
 <div class="page-header row mb-3">
   <div class="col">
-    <h2 class="mb-0">State Comparison — Source &amp; Disposition</h2>
+    <h2 class="mb-0">State Comparison — Energy Flows</h2>
     <p class="text-muted mt-1 mb-0">
-      Compare all 50 states for a single year. Values in megawatthours (MWh).
+      Visualize energy imports and exports across all 50 states. Dark blue indicates net importers, green indicates net exporters.
     </p>
   </div>
 </div>
@@ -35,32 +35,35 @@
 
 <div id="comparison-error" class="alert alert-danger d-none" role="alert"></div>
 
-<!-- ── Charts ────────────────────────────────────────────────────────────────── -->
-<div class="row chart-row justify-content-center">
-  <div class="col-lg-8 mb-3">
+<!-- ── Map ──────────────────────────────────────────────────────────────────── -->
+<div class="row chart-row">
+  <div class="col-12">
     <div class="chart-card">
-      <p class="chart-title">Total Net Generation by State</p>
-      <p class="chart-subtitle">Highest generation appears at the top.</p>
-      <div id="generation-by-state" class="chart-container"></div>
+      <p class="chart-title">State Energy Trade Position</p>
+      <p class="chart-subtitle">
+        Net position calculated as exports minus imports. Green states are net exporters, blue states are net importers.
+      </p>
+      <div id="state-map" class="chart-container"></div>
     </div>
   </div>
 </div>
 
+<!-- ── Top 10 Charts ─────────────────────────────────────────────────────────── -->
 <div class="row chart-row">
   <div class="col-lg-6 mb-3 mb-lg-0">
     <div class="chart-card">
-      <p class="chart-title">Total Imports by State</p>
+      <p class="chart-title">Top 10 Importers</p>
       <p class="chart-subtitle">
-        Interstate plus international imports. Highest values appear at the top.
+        States with highest total energy imports (interstate + international).
       </p>
       <div id="imports-by-state" class="chart-container"></div>
     </div>
   </div>
   <div class="col-lg-6">
     <div class="chart-card">
-      <p class="chart-title">Total Exports by State</p>
+      <p class="chart-title">Top 10 Exporters</p>
       <p class="chart-subtitle">
-        Interstate plus international exports. Highest values appear at the top.
+        States with highest total energy exports (interstate + international).
       </p>
       <div id="exports-by-state" class="chart-container"></div>
     </div>

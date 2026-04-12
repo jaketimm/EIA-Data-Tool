@@ -7,53 +7,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
 } else {
 
   // Color palette 
-  const BLUE = "#5E81AC";
   const DARK_BLUE = "#1f4970";
   const GREEN = "#7c9e6e";
-
-
-  // Shared chart layout and settings
-  function baseLayout() {
-    return {
-      font: { family: "system-ui, sans-serif", size: 12 },
-      paper_bgcolor: "rgba(255,255,255,1)",
-      plot_bgcolor: "rgba(255,255,255,1)",
-      margin: { t: 10, r: 15, b: 45, l: 15 },
-      xaxis: {
-        title: "MWh",
-        gridcolor: "#dfe2e6",
-        zeroline: true,
-        zerolinecolor: "#adb5bd",
-        zerolinewidth: 1,
-
-      },
-      yaxis: {
-        automargin: true,
-        ticklabelposition: "outside",
-        ticklen: 4,
-        tickwidth: 0,
-        standoff: 10,
-      },
-      hoverlabel: {
-        bgcolor: "#ffffff",
-        bordercolor: "#dee2e6",
-        font: { color: "#212529", size: 12 },
-      },
-      legend: {
-        orientation: "h",
-        yanchor: "bottom",
-        y: 1.02,
-        xanchor: "left",
-        x: 0,
-      },
-      modebar: {
-        color: "#6c757d",
-        activecolor: "#212529",
-      },
-      barmode: "group",
-      bargap: 0.15,
-    };
-  }
 
   const plotCfg = {
     responsive: true,
@@ -72,21 +27,6 @@ if (!yearSelect || typeof Plotly === "undefined") {
     ],
   };
 
-  function chartHeight(categoryCount) {
-    return Math.max(700, categoryCount * 12 + 120);
-  }
-
-  // Set a shared x-axis max for the net import and export charts
-  // Creates a side-by-side comparison with a consistent scale
-  function getSharedTradeAxisMax(data) {
-    const importMax = Math.max(...(data.total_imports || [0]));
-    const exportMax = Math.max(...(data.total_exports || [0]));
-    const baseMax = Math.max(importMax, exportMax, 0);
-    const minPadding = 250000;
-    const pad = Math.max(baseMax * 0.08, minPadding);
-    return baseMax + pad;
-  }
-
   function showError(message) {
     errorEl.textContent = message;
     errorEl.classList.remove("d-none");
@@ -104,9 +44,10 @@ if (!yearSelect || typeof Plotly === "undefined") {
     try {
       clearError();
       const data = await fetchComparisonData(year);
-      renderGenerationChart(data);
-      renderImportsChart(data);
-      renderExportsChart(data);
+      renderChoroplethMap(data);
+      renderTop10Imports(data);
+      renderTop10Exports(data);
+      renderTable(data);
     } catch (err) {
       showError(err.message);
     }
@@ -115,7 +56,6 @@ if (!yearSelect || typeof Plotly === "undefined") {
   yearSelect.value = String(config.selectedYear || yearSelect.value);
   yearSelect.addEventListener("change", refreshCharts);
   refreshCharts();
-
 
   // Call Flask route to query DB and update data
   async function fetchComparisonData(year) {
@@ -138,70 +78,137 @@ if (!yearSelect || typeof Plotly === "undefined") {
     return response.json();
   }
 
+  // Choropleth map showing imports (dark blue) and exports (green)
+  function renderChoroplethMap(data) {
+    // Build lookup maps
+    const importMap = Object.fromEntries(
+      data.import_states.map((state, i) => [state, data.total_imports[i]])
+    );
+    const exportMap = Object.fromEntries(
+      data.export_states.map((state, i) => [state, data.total_exports[i]])
+    );
 
-  // Bar chart — Net Generation
-  function renderGenerationChart(data) {
+    // Determine net position for each state
+    const allStates = new Set([...data.import_states, ...data.export_states]);
+    const locations = [];
+    const netValues = [];
+    const hoverTexts = [];
+
+    allStates.forEach(state => {
+      const imports = importMap[state] || 0;
+      const exports = exportMap[state] || 0;
+      const netPosition = exports - imports;
+
+      locations.push(state);
+      netValues.push(netPosition);
+
+      const stateName = data.import_state_names?.[data.import_states.indexOf(state)] ||
+        data.export_state_names?.[data.export_states.indexOf(state)] ||
+        state;
+
+      hoverTexts.push(
+        `${stateName}<br>` +
+        `Imports: ${imports.toLocaleString()} MWh<br>` +
+        `Exports: ${exports.toLocaleString()} MWh<br>` +
+        `Net: ${netPosition >= 0 ? '+' : ''}${netPosition.toLocaleString()} MWh`
+      );
+    });
+
     Plotly.newPlot(
-      "generation-by-state",
-      [
-        {
-          x: data.total_generation,
-          y: data.generation_states,
-          customdata: data.generation_state_names,
-          type: "bar",
-          orientation: "h",
-          marker: { color: BLUE },
-          hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
+      "state-map",
+      [{
+        type: "choropleth",
+        locationmode: "USA-states",
+        locations: locations,
+        z: netValues,
+        text: hoverTexts,
+        hovertemplate: "%{text}<extra></extra>",
+        zmin: -Math.max(...netValues.map(Math.abs)),
+        zmax: Math.max(...netValues.map(Math.abs)),
+        colorscale: [
+          [0, DARK_BLUE],
+          [0.4999, DARK_BLUE],
+          [0.5, GREEN],
+          [1, GREEN]
+        ],
+        colorbar: {
+          title: "Net Position<br>(MWh)",
+          thickness: 15,
+          len: 0.7,
+          tickformat: ",.0f",
         },
-      ],
+        marker: {
+          line: {
+            color: "#ffffff",
+            width: 1.5
+          }
+        },
+        hoverlabel: {
+          bgcolor: "#ffffff",
+          bordercolor: "#dee2e6",
+          font: { color: "#212529", size: 12 },
+        },
+      }],
       {
-        ...baseLayout(),
-        height: chartHeight(data.generation_states.length),
-        yaxis: {
-          ...baseLayout().yaxis,
-          autorange: "reversed",
-          tickmode: "array",
-          tickvals: data.generation_states,
-          ticktext: data.generation_states,
+        geo: {
+          scope: "usa",
+          showlakes: false,
+          bgcolor: "rgba(255,255,255,1)"
         },
-        showlegend: false,
+        font: { family: "system-ui, sans-serif", size: 12 },
+        paper_bgcolor: "rgba(255,255,255,1)",
+        margin: { t: 10, r: 15, b: 10, l: 15 },
+        height: 500,
       },
       plotCfg
     );
   }
 
+  // Bar chart — Top 10 Imports
+  function renderTop10Imports(data) {
+    // Get top 10 importers
+    const combined = data.import_states.map((state, i) => ({
+      state,
+      name: data.import_state_names[i],
+      value: data.total_imports[i]
+    }));
 
-  // Bar chart — Net Imports
-  function renderImportsChart(data) {
-    const sharedMax = getSharedTradeAxisMax(data);
+    // Sort descending and take top 10
+    combined.sort((a, b) => b.value - a.value);
+    const top10 = combined.slice(0, 10);
 
     Plotly.newPlot(
       "imports-by-state",
-      [
-        {
-          x: data.total_imports,
-          y: data.import_states,
-          customdata: data.import_state_names,
-          type: "bar",
-          orientation: "h",
-          name: "Total Imports (Interstate + Intl)",
-          marker: { color: DARK_BLUE },
-          hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
-        },
-      ],
+      [{
+        x: top10.map(d => d.value),
+        y: top10.map(d => d.state),
+        customdata: top10.map(d => d.name),
+        type: "bar",
+        orientation: "h",
+        marker: { color: DARK_BLUE },
+        hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
+      }],
       {
-        ...baseLayout(),
-        height: chartHeight(data.import_states.length),
-        yaxis: {
-          ...baseLayout().yaxis,
-          autorange: "reversed",
-          tickmode: "array",
-          tickvals: data.import_states,
-          ticktext: data.import_states,
+        font: { family: "system-ui, sans-serif", size: 12 },
+        paper_bgcolor: "rgba(255,255,255,1)",
+        plot_bgcolor: "rgba(255,255,255,1)",
+        margin: { t: 10, r: 15, b: 45, l: 70 },
+        height: 400,
+        hoverlabel: {
+          bgcolor: "#ffffff",
+          bordercolor: "#dee2e6",
+          font: { color: "#212529", size: 12 },
         },
         xaxis: {
-          ...baseLayout().xaxis,
-          range: [0, sharedMax],
+          title: "MWh",
+          gridcolor: "#dfe2e6",
+        },
+        yaxis: {
+          autorange: "reversed",
+          automargin: true,
+          side: "left",
+          ticklen: 5,
+          tickwidth: 1,
         },
         showlegend: false,
       },
@@ -209,48 +216,57 @@ if (!yearSelect || typeof Plotly === "undefined") {
     );
   }
 
+  // Bar chart — Top 10 Exports
+  function renderTop10Exports(data) {
+    // Get top 10 exporters
+    const combined = data.export_states.map((state, i) => ({
+      state,
+      name: data.export_state_names[i],
+      value: data.total_exports[i]
+    }));
 
-  // Bar chart — Net Exports
-  function renderExportsChart(data) {
-    const sharedMax = getSharedTradeAxisMax(data);
+    // sort descending and take top 10
+    combined.sort((a, b) => b.value - a.value);
+    const top10 = combined.slice(0, 10);
 
     Plotly.newPlot(
       "exports-by-state",
-      [
-        {
-          x: data.total_exports,
-          y: data.export_states,
-          customdata: data.export_state_names,
-          type: "bar",
-          orientation: "h",
-          name: "Total Exports (Interstate + Intl)",
-          marker: { color: GREEN },
-          hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
-        },
-      ],
+      [{
+        x: top10.map(d => d.value),
+        y: top10.map(d => d.state),
+        customdata: top10.map(d => d.name),
+        type: "bar",
+        orientation: "h",
+        marker: { color: GREEN },
+        hovertemplate: "%{customdata} (%{y})<br>%{x:,.0f} MWh<extra></extra>",
+      }],
       {
-        ...baseLayout(),
-        height: chartHeight(data.export_states.length),
-        yaxis: {
-          ...baseLayout().yaxis,
-          autorange: "reversed",
-          tickmode: "array",
-          tickvals: data.export_states,
-          ticktext: data.export_states,
+        font: { family: "system-ui, sans-serif", size: 12 },
+        paper_bgcolor: "rgba(255,255,255,1)",
+        plot_bgcolor: "rgba(255,255,255,1)",
+        margin: { t: 10, r: 15, b: 45, l: 60 },
+        height: 400,
+        hoverlabel: {
+          bgcolor: "#ffffff",
+          bordercolor: "#dee2e6",
+          font: { color: "#212529", size: 12 },
         },
         xaxis: {
-          ...baseLayout().xaxis,
-          range: [0, sharedMax],
+          title: "MWh",
+          gridcolor: "#dfe2e6",
+        },
+        yaxis: {
+          autorange: "reversed",
+          automargin: true,
+          side: "left",
+          ticklen: 5,
+          tickwidth: 1,
         },
         showlegend: false,
       },
       plotCfg
     );
-
-    renderTable(data);
-
   }
-
 
   // HTML table of raw data below the chart
   function renderTable(data) {

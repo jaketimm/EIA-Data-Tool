@@ -20,8 +20,8 @@ This project is independent and not affiliated with the EIA.
 ### 2024 National Renewable Energy Generation by Type
 ![Net Generation](screenshots/2024_renewables_breakdown.png)
 
-### 2024 Net Generation By State
-![Net Generation](screenshots/2024_generation_by_state.png)
+### 2024 State Net Trade Comparison
+![Net Trade Comparison](screenshots/state_net_trade_comparison_2024.png)
 
 Note: all charts have interactive tooltips
 
