@@ -9,6 +9,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
   // Color palette 
   const DARK_BLUE = "#1f4970";
   const GREEN = "#7c9e6e";
+  const GRAY = "#dfe2e6";
 
   const plotCfg = {
     responsive: true,
@@ -128,7 +129,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
         colorscale: [
           [0, DARK_BLUE],
           [0.4999, DARK_BLUE],
-          [0.5, GREEN],
+          [0.5, GRAY],
+          [0.5001, GREEN],
           [1, GREEN]
         ],
         colorbar: {
