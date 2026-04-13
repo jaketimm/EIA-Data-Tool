@@ -11,6 +11,7 @@ if (!yearSelect || typeof Plotly === "undefined") {
   const GREEN = "#7c9e6e";
   const GRAY = "#dfe2e6";
 
+  // shared config for all charts
   const plotCfg = {
     responsive: true,
     displayModeBar: "hover",
@@ -124,6 +125,8 @@ if (!yearSelect || typeof Plotly === "undefined") {
         z: netValues,
         text: hoverTexts,
         hovertemplate: "%{text}<extra></extra>",
+        showscale: false, // Hide color bar
+        // show gray for zero net position, blue for net imports, green for net exports
         zmin: -Math.max(...netValues.map(Math.abs)),
         zmax: Math.max(...netValues.map(Math.abs)),
         colorscale: [
@@ -133,12 +136,6 @@ if (!yearSelect || typeof Plotly === "undefined") {
           [0.5001, GREEN],
           [1, GREEN]
         ],
-        colorbar: {
-          title: "Net Position<br>(MWh)",
-          thickness: 15,
-          len: 0.7,
-          tickformat: ",.0f",
-        },
         marker: {
           line: {
             color: "#ffffff",
