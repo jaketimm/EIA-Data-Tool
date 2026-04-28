@@ -11,8 +11,9 @@ This project is independent and not affiliated with the EIA.
 - Tracks net generation, interstate trade, and international imports/exports
 - Charts for generation and trade trends over time
 - Data cached locally in SQLite — only re-fetches from the API every 30 days
+- Includes a Power BI reimplementation of key web visualizations
 
-## Sample Charts
+## Sample Plotly Charts
 
 ### Vermont Yearly Net Generation By Source
 ![Yearly Generation By Source](screenshots/Vermont_net_generation_by_source.png)
