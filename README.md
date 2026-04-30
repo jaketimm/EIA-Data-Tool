@@ -17,8 +17,8 @@ This project is independent and not affiliated with the EIA.
 ### Vermont Yearly Net Generation By Source
 ![Yearly Generation By Source](screenshots/Vermont_net_generation_by_source.png)
 
-### 2024 National Renewable Energy Generation by Type
-![Net Generation](screenshots/2024_renewables_breakdown.png)
+### 2024 National Generation Capacity by Source
+![Net Generation](screenshots/2024_capacity_breakdown.png)
 
 ### 2024 State Net Trade Comparison
 ![Net Trade Comparison](screenshots/state_net_trade_comparison_2024.png)
