@@ -60,7 +60,7 @@ def save_json_cache(
     units: str = "megawatthours",
 ) -> None:
     """Write records + metadata to the JSON cache file."""
-    json_file.parent.mkdir(exist_ok=True)
+    json_file.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "fetched_at": datetime.now(timezone.utc).isoformat(),
         "record_count": len(records),
@@ -70,7 +70,7 @@ def save_json_cache(
     }
 
     try:
-        with open(json_file, encoding="utf-8") as f:
+        with open(json_file, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
     except FileNotFoundError as exc:
         logger.error("Could not find path when saving JSON cache: %s", exc)
